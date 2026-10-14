@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/*
+ * "Quiet Luxury" theme — the exact palette used by the Android app
+ * (app/src/main/java/com/slem/gazastor/ui/theme/Color.kt). Light-only:
+ * dynamic/OS dark color must never leak in.
+ */
+:root {
+  --background: #f5f1ea;
+  --foreground: #1c1b17;
+
+  --card: #fbf9f5;
+  --card-foreground: #1c1b17;
+
+  --popover: #fbf9f5;
+  --popover-foreground: #1c1b17;
+
+  --primary: #1f3a32;
+  --primary-foreground: #ffffff;
+
+  --secondary: #ede7dc;
+  --secondary-foreground: #1c1b17;
+
+  --muted: #ede7dc;
+  --muted-foreground: #5c5a52;
+
+  --accent: #e8d9cb;
+  --accent-foreground: #3a2413;
+
+  --destructive: #a33a2e;
+  --destructive-foreground: #ffffff;
+
+  --border: #e0d8cb;
+  --input: #e0d8cb;
+  --ring: #a9744f;
+
+  --radius: 0.75rem;
+
+  /* Raw brand tokens, surfaced below as `brand-*` Tailwind colors. */
+  --brand-green: #1f3a32;
+  --brand-green-dark: #16281f;
+  --brand-green-container: #dce5e0;
+  --brand-copper: #a9744f;
+  --brand-copper-container: #e8d9cb;
+  --brand-copper-on: #3a2413;
+  --brand-beige: #f5f1ea;
+  --brand-surface: #fbf9f5;
+  --brand-variant: #ede7dc;
+  --brand-hairline: #e0d8cb;
+  --brand-ink: #1c1b17;
+  --brand-muted: #5c5a52;
+  --brand-error: #a33a2e;
+  --brand-error-container: #f6dfdb;
+  --brand-error-on: #3f0f0a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-brand-green: var(--brand-green);
+  --color-brand-green-dark: var(--brand-green-dark);
+  --color-brand-green-container: var(--brand-green-container);
+  --color-brand-copper: var(--brand-copper);
+  --color-brand-copper-container: var(--brand-copper-container);
+  --color-brand-copper-on: var(--brand-copper-on);
+  --color-brand-beige: var(--brand-beige);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-variant: var(--brand-variant);
+  --color-brand-hairline: var(--brand-hairline);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-muted: var(--brand-muted);
+  --color-brand-error: var(--brand-error);
+  --color-brand-error-container: var(--brand-error-container);
+  --color-brand-error-on: var(--brand-error-on);
+
+  --font-sans: var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* Light-only: opt the `dark:` variant out entirely so OS dark mode cannot
+   reach the fixed brand theme. */
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

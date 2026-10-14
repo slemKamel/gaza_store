@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "Quiet Luxury" beige, used as the window background before Compose draws.
+         Keep in sync with ui/theme/Color.kt. -->
+    <color name="brand_background">#FFF5F1EA</color>
+</resources>
