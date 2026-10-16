@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-24 text-center">
-      <p className="text-4xl font-bold text-primary">404</p>
+      <p className="font-latin text-4xl font-bold text-primary">404</p>
       <h1 className="text-lg font-semibold">الصفحة غير موجودة</h1>
       <p className="max-w-sm text-sm text-muted-foreground">
         الرابط الذي تحاول الوصول إليه غير متاح أو تم نقله.

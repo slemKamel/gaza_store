@@ -52,6 +52,25 @@
   --brand-error: #a33a2e;
   --brand-error-container: #f6dfdb;
   --brand-error-on: #3f0f0a;
+
+  /*
+   * Type roles (the app's four families + Playfair Display for the dashboard).
+   * `next/font/local` injects the hashed family names as the `--font-*`
+   * primitives on <html>; each role below is a per-glyph fallback chain, so one
+   * line may safely mix scripts — Latin takes the Latin face, Arabic falls back
+   * to its Arabic partner. Licenses: ../../licenses/.
+   *
+   *   --font-logo     Bodoni Moda  (Latin wordmark; Amiri for Arabic)
+   *   --font-heading  Playfair Display (Latin headings; Amiri for Arabic)
+   *   --font-body     Inter        (Latin body, figures; Plex for Arabic)
+   *   --font-body-ar  IBM Plex Sans Arabic (Arabic running copy)
+   *   --font-logo-ar  Amiri        (the Arabic wordmark "متجر غزة")
+   */
+  --font-logo: var(--font-bodoni), var(--font-amiri), serif;
+  --font-heading: var(--font-playfair), var(--font-amiri), serif;
+  --font-body: var(--font-inter), var(--font-plex-arabic), sans-serif;
+  --font-body-ar: var(--font-plex-arabic), var(--font-inter), sans-serif;
+  --font-logo-ar: var(--font-amiri), serif;
 }
 
 @theme inline {
@@ -91,7 +110,21 @@
   --color-brand-error-container: var(--brand-error-container);
   --color-brand-error-on: var(--brand-error-on);
 
-  --font-sans: var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-body-ar), ui-sans-serif, system-ui, sans-serif;
+
+  /*
+   * Arabic reads looser than Latin: 1.6–1.8 on running copy, easing off on the
+   * large editorial sizes. Tailwind's Latin-tuned defaults (1.1–1.5) are too
+   * tight for Arabic glyphs. Explicit `leading-*` utilities still win.
+   */
+  --text-xs--line-height: 1.7;
+  --text-sm--line-height: 1.7;
+  --text-base--line-height: 1.7;
+  --text-lg--line-height: 1.6;
+  --text-xl--line-height: 1.6;
+  --text-2xl--line-height: 1.5;
+  --text-3xl--line-height: 1.45;
+  --text-4xl--line-height: 1.35;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -103,6 +136,28 @@
    reach the fixed brand theme. */
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Script-fixed stacks. These reference the `next/font` primitives directly and
+ * deliberately ignore the `:lang(ar)` override below, so they keep their
+ * meaning even inside an Arabic document:
+ *
+ *   font-latin     Inter first — figures, ids and Latin copy. Arabic still
+ *                  resolves to IBM Plex Sans Arabic through the fallback.
+ *   font-logo      Bodoni Moda first — the Latin half of the brand lockup.
+ *   font-logo-ar   Amiri only — the Arabic wordmark "متجر غزة".
+ */
+@utility font-latin {
+  font-family: var(--font-inter), var(--font-plex-arabic), sans-serif;
+}
+
+@utility font-logo {
+  font-family: var(--font-logo);
+}
+
+@utility font-logo-ar {
+  font-family: var(--font-logo-ar);
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -110,5 +165,28 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /*
+   * Arabic / RTL document: running copy takes the Arabic-first stack (IBM Plex
+   * Sans Arabic owns the letters *and* the digits beside them) and never takes
+   * tracking, which would break letter joining. Latin runs opt back in with
+   * `tracking-*`; figures and Latin with `.font-latin`; headings keep
+   * `--font-heading` (Playfair for Latin, Amiri for Arabic) via the rule below.
+   * Kept at specificity 0 so any utility or element rule can override it.
+   */
+  :where(:lang(ar), [dir="rtl"]) {
+    font-family: var(--font-body-ar);
+    letter-spacing: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    letter-spacing: 0;
   }
 }

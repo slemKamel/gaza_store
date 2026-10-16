@@ -51,7 +51,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-10 px-3 text-right align-middle text-xs font-semibold text-muted-foreground",
+        "h-10 px-3 text-start align-middle text-xs font-semibold text-muted-foreground",
         className,
       )}
       {...props}
@@ -63,7 +63,9 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
   return (
     <td
       data-slot="table-cell"
-      className={cn("px-3 py-3 text-right align-middle", className)}
+      // `font-latin` gives figures and Latin ids Inter; Arabic still falls back
+      // to IBM Plex Sans Arabic, so mixed cells stay correct.
+      className={cn("px-3 py-3 text-start align-middle font-latin", className)}
       {...props}
     />
   );

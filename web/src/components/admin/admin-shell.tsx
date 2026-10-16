@@ -6,7 +6,7 @@ import { SignOutButton } from "./sign-out-button";
 function Brand() {
   return (
     <div className="flex flex-col leading-tight">
-      <span className="text-base font-bold text-primary">Gaza Stor</span>
+      <span className="font-logo-ar text-base font-bold text-primary">متجر غزة</span>
       <span className="text-xs text-muted-foreground">لوحة التحكم</span>
     </div>
   );

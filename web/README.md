@@ -1,8 +1,8 @@
-# Gaza Stor — Admin Dashboard
+# Gaza Store — Admin Dashboard
 
-Admin website for the Gaza Stor mobile app. Built with **Next.js 16** (App Router), **React 19**, **TypeScript**, **Tailwind CSS v4** and **shadcn-style** components on top of **Radix UI**. It talks to the same Supabase project as the Android app using `@supabase/ssr` (cookie-based sessions).
+Admin website for the Gaza Store mobile app. Built with **Next.js 16** (App Router), **React 19**, **TypeScript**, **Tailwind CSS v4** and **shadcn-style** components on top of **Radix UI**. It talks to the same Supabase project as the Android app using `@supabase/ssr` (cookie-based sessions).
 
-The dashboard mirrors the app's **"Quiet Luxury"** design: beige `#F5F1EA` background, deep forest green `#1F3A32` primary, copper `#A9744F` accents, hairline `#E0D8CB` borders, flat surfaces, Arabic + RTL, light-only, IBM Plex Sans Arabic (the same TTF files as the app, self-hosted via `next/font/local` in `src/app/fonts/`).
+The dashboard mirrors the app's **"Quiet Luxury"** design: beige `#F5F1EA` background, deep forest green `#1F3A32` primary, copper `#A9744F` accents, hairline `#E0D8CB` borders, flat surfaces, Arabic + RTL, light-only. Five OFL families are self-hosted via `next/font/local` from `src/app/fonts/` (the same TTFs the app bundles in `app/src/main/res/font/`, plus Playfair Display for Latin headings).
 
 ## Getting started
 
@@ -61,8 +61,8 @@ src/
 │   │   ├── dashboard/ categories/ items/ banners/ orders/
 │   ├── login/              # page + client form
 │   ├── access-denied/
-│   ├── fonts/              # IBM Plex Sans Arabic TTFs
-│   ├── layout.tsx          # <html lang="ar" dir="rtl"> + font variable
+│   ├── fonts/              # self-hosted OFL TTFs (five families)
+│   ├── layout.tsx          # <html lang="ar" dir="rtl"> + next/font variables
 │   ├── page.tsx            # redirects to /dashboard or /login
 │   ├── not-found.tsx
 │   └── globals.css         # brand tokens + shadcn theme variables
@@ -93,5 +93,6 @@ src/
 - **Next 16:** middleware is now `proxy.ts` (exporting `proxy`), and typed routes are enabled. `cookies()` is async, so the server client is created with `await cookies()`.
 - **Cache Components are disabled** (`cacheComponents: false` in `next.config.ts`). The dashboard is entirely auth-gated and per-user, so classic dynamic rendering is simpler and avoids accidentally caching one admin's data for another.
 - **Formatting matches the app:** amounts use Western digits with thousands separators (`1,500 ₪`), dates render as `yyyy/MM/dd`, and order statuses use the same Arabic labels as the Android UI (`src/lib/constants.ts` / `src/lib/format.ts`).
+- **Typography** (`src/app/layout.tsx` + `src/app/globals.css`): five self-hosted families are registered with `next/font/local` and composed into five roles on `:root` — `--font-logo` (Bodoni Moda → Amiri), `--font-heading` (Playfair Display → Amiri), `--font-body` (Inter → IBM Plex Sans Arabic), `--font-body-ar` (IBM Plex Sans Arabic) and `--font-logo-ar` (Amiri). Because each role is a per-glyph fallback chain, one line may safely mix scripts. `:lang(ar)` / `[dir="rtl"]` selects the Arabic-first body stack and removes tracking (Arabic letter joining); Latin and figures opt back in with the script-fixed `.font-latin`, `.font-logo` and `.font-logo-ar` utilities. Arabic line heights are raised to 1.6–1.8 on the `--text-*--line-height` tokens. Licenses live in `../licenses/`.
 - **Images** use plain `<img>` (the `@next/next/no-img-element` rule is disabled) because admins may paste arbitrary image URLs that aren't allow-listed for `next/image`.
 - `src/lib/database.types.ts` is generated from the Supabase schema; regenerate it after schema changes.

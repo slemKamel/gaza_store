@@ -23,8 +23,11 @@ export default async function LoginPage({
     <main className="flex flex-1 items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-1 text-center">
-          <span className="text-2xl font-bold text-primary">Gaza Stor</span>
-          <span className="text-sm text-muted-foreground">لوحة التحكم</span>
+          <span className="font-logo-ar text-3xl font-bold text-primary">متجر غزة</span>
+          <span className="font-logo text-[0.7rem] tracking-[0.28em] text-muted-foreground">
+            GAZA STORE
+          </span>
+          <span className="mt-1 text-sm text-muted-foreground">لوحة التحكم</span>
         </div>
 
         <div className="rounded-xl border border-border bg-card p-6">

@@ -107,7 +107,7 @@ export default async function OrderDetailPage({
                 </TableBody>
               </Table>
 
-              <div className="flex flex-col gap-2 border-t border-border p-5 text-sm">
+              <div className="flex flex-col gap-2 border-t border-border p-5 text-sm font-latin">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">المجموع الفرعي</span>
                   <span>{formatCurrency(order.subtotal)}</span>
@@ -198,7 +198,7 @@ function Row({
   return (
     <div className="flex items-start justify-between gap-4">
       <span className="shrink-0 text-muted-foreground">{label}</span>
-      <span className="text-left" dir={ltr ? "ltr" : undefined}>
+      <span className="text-end font-latin" dir={ltr ? "ltr" : undefined}>
         {value}
       </span>
     </div>
