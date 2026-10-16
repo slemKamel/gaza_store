@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Placeholder artwork used only by @Preview sample data so images render inside
+  Android Studio previews (real screens load remote URLs through Coil).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    <path
+        android:fillColor="#EDE7DC"
+        android:pathData="M0,0h120v120h-120z" />
+    <path
+        android:fillColor="#1F3A32"
+        android:pathData="M60,32c-6.6,0 -12,5.4 -12,12s5.4,12 12,12s12,-5.4 12,-12s-5.4,-12 -12,-12z" />
+    <path
+        android:fillColor="#A9744F"
+        android:pathData="M28,84l20,-24l14,16l12,-14l18,22z" />
+</vector>

@@ -35,17 +35,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.slem.gazastor.R
 import com.slem.gazastor.ui.components.AmountText
 import com.slem.gazastor.ui.components.LoadingIndicator
+import com.slem.gazastor.ui.components.ProductImage
 import com.slem.gazastor.ui.components.QuantityStepper
+import com.slem.gazastor.ui.components.SummaryRow
+import com.slem.gazastor.ui.theme.Dimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,6 +58,29 @@ fun CartScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    CartContent(
+        uiState = uiState,
+        onBrowseClick = onBrowseClick,
+        onCheckoutClick = onCheckoutClick,
+        onSignInClick = onSignInClick,
+        onIncrease = viewModel::increase,
+        onDecrease = viewModel::decrease,
+        onRemove = viewModel::remove
+    )
+}
+
+/** Stateless cart: line rows plus the summary bottom bar. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun CartContent(
+    uiState: CartUiState,
+    onBrowseClick: () -> Unit,
+    onCheckoutClick: () -> Unit,
+    onSignInClick: () -> Unit,
+    onIncrease: (String) -> Unit,
+    onDecrease: (String) -> Unit,
+    onRemove: (String) -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -96,15 +120,15 @@ fun CartScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                contentPadding = PaddingValues(Dimens.ScreenPadding),
+                verticalArrangement = Arrangement.spacedBy(Dimens.GridSpacing)
             ) {
                 items(items = uiState.lines, key = { it.itemId }) { line ->
                     CartLineRow(
                         line = line,
-                        onIncrease = { viewModel.increase(line.itemId) },
-                        onDecrease = { viewModel.decrease(line.itemId) },
-                        onRemove = { viewModel.remove(line.itemId) }
+                        onIncrease = { onIncrease(line.itemId) },
+                        onDecrease = { onDecrease(line.itemId) },
+                        onRemove = { onRemove(line.itemId) }
                     )
                 }
             }
@@ -123,20 +147,19 @@ private fun CartLineRow(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = BorderStroke(Dimens.Border, MaterialTheme.colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(
+            ProductImage(
                 model = line.imageUrl,
                 contentDescription = line.title,
                 modifier = Modifier
                     .size(72.dp)
-                    .clip(MaterialTheme.shapes.small),
-                contentScale = ContentScale.Crop
+                    .clip(MaterialTheme.shapes.small)
             )
 
             Spacer(modifier = Modifier.size(12.dp))
@@ -235,7 +258,7 @@ private fun CartSummary(
                 onClick = if (uiState.isSignedIn) onCheckoutClick else onSignInClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .height(Dimens.ButtonHeight)
             ) {
                 Text(
                     text = stringResource(
@@ -249,43 +272,6 @@ private fun CartSummary(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun SummaryRow(
-    label: String,
-    value: Double,
-    emphasized: Boolean = false
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = label,
-            style = if (emphasized) {
-                MaterialTheme.typography.titleSmall
-            } else {
-                MaterialTheme.typography.bodyMedium
-            },
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        AmountText(
-            value = value,
-            style = if (emphasized) {
-                MaterialTheme.typography.titleMedium
-            } else {
-                MaterialTheme.typography.bodyMedium
-            },
-            color = if (emphasized) {
-                MaterialTheme.colorScheme.secondary
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            }
-        )
     }
 }
 

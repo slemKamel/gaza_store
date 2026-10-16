@@ -3,7 +3,6 @@ package com.slem.gazastor.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
@@ -19,6 +18,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.slem.gazastor.R
+import com.slem.gazastor.ui.theme.Dimens
+import com.slem.gazastor.ui.theme.LatinFontFamily
 
 /**
  * Small − / value / + stepper. Shared by the detail screen (choose how many to
@@ -39,9 +40,9 @@ fun QuantityStepper(
 
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(8.dp),
+        shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        border = BorderStroke(Dimens.Border, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(
@@ -60,6 +61,7 @@ fun QuantityStepper(
             Text(
                 text = quantity.toString(),
                 style = MaterialTheme.typography.titleSmall,
+                fontFamily = LatinFontFamily,
                 color = MaterialTheme.colorScheme.onSurface
             )
 

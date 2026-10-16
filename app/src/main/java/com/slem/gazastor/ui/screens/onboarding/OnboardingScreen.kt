@@ -1,11 +1,15 @@
 package com.slem.gazastor.ui.screens.onboarding
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,12 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,47 +33,72 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.slem.gazastor.R
+import com.slem.gazastor.ui.components.BrandLockup
+import com.slem.gazastor.ui.components.BrandMark
+import com.slem.gazastor.ui.components.EssentialsShowcase
+import com.slem.gazastor.ui.components.QuickOrdersShowcase
+import com.slem.gazastor.ui.theme.Dimens
 import kotlinx.coroutines.launch
+
+/** What a page shows above the shared headline. */
+private sealed interface PageVisual {
+    /** The brand lockup, used by the first page. */
+    data object Brand : PageVisual
+
+    /** The animated category showcase, used by the second page. */
+    data object Showcase : PageVisual
+
+    /** The animated quick-orders scene (ANIMATION_62), used by the third page. */
+    data object Orders : PageVisual
+}
 
 private data class OnboardingPage(
     @param:StringRes val titleRes: Int,
     @param:StringRes val subtitleRes: Int,
-    val icon: ImageVector
+    val visual: PageVisual
 )
 
 private val OnboardingPages = listOf(
     OnboardingPage(
-        titleRes = R.string.onboarding_title_browse,
-        subtitleRes = R.string.onboarding_subtitle_browse,
-        icon = Icons.Filled.Search
+        titleRes = 0,
+        subtitleRes = 0,
+        visual = PageVisual.Brand
     ),
     OnboardingPage(
-        titleRes = R.string.onboarding_title_offers,
-        subtitleRes = R.string.onboarding_subtitle_offers,
-        icon = Icons.Filled.Star
+        titleRes = R.string.onboarding_title_essentials,
+        subtitleRes = 0,
+        visual = PageVisual.Showcase
     ),
     OnboardingPage(
         titleRes = R.string.onboarding_title_orders,
         subtitleRes = R.string.onboarding_subtitle_orders,
-        icon = Icons.Filled.ShoppingCart
+        visual = PageVisual.Orders
     )
 )
 
 /**
- * Three quiet-luxury intro pages: icon in a hairline circle, green headline,
- * copper-free body copy. Skippable from the top corner (start in RTL = right).
+ * Three quiet-luxury intro pages: the brand lockup, the animated category
+ * showcase, then the animated quick-orders scene. Skippable from the top
+ * corner (start in RTL = right).
  */
 @Composable
 fun OnboardingScreen(
     onFinish: () -> Unit,
     viewModel: OnboardingViewModel = viewModel()
 ) {
+    OnboardingContent(onComplete = { viewModel.complete(onFinish) })
+}
+
+/** Stateless intro pager; [onComplete] persists the flag and leaves onboarding. */
+@Composable
+internal fun OnboardingContent(onComplete: () -> Unit) {
     val pagerState = rememberPagerState(pageCount = { OnboardingPages.size })
     val scope = rememberCoroutineScope()
     val isLastPage = pagerState.currentPage == OnboardingPages.lastIndex
@@ -91,7 +115,7 @@ fun OnboardingScreen(
                     .padding(horizontal = 8.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.Start
             ) {
-                TextButton(onClick = { viewModel.complete(onFinish) }) {
+                TextButton(onClick = onComplete) {
                     Text(
                         text = stringResource(R.string.onboarding_skip),
                         style = MaterialTheme.typography.labelLarge,
@@ -104,7 +128,10 @@ fun OnboardingScreen(
                 state = pagerState,
                 modifier = Modifier.weight(1f)
             ) { pageIndex ->
-                PageContent(OnboardingPages[pageIndex])
+                PageContent(
+                    page = OnboardingPages[pageIndex],
+                    isVisible = pagerState.currentPage == pageIndex
+                )
             }
 
             PageIndicator(
@@ -118,7 +145,7 @@ fun OnboardingScreen(
             Button(
                 onClick = {
                     if (isLastPage) {
-                        viewModel.complete(onFinish)
+                        onComplete()
                     } else {
                         scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
                     }
@@ -126,7 +153,7 @@ fun OnboardingScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
-                    .height(52.dp)
+                    .height(Dimens.ButtonHeight)
             ) {
                 Text(
                     text = stringResource(
@@ -140,7 +167,10 @@ fun OnboardingScreen(
 }
 
 @Composable
-private fun PageContent(page: OnboardingPage) {
+private fun PageContent(
+    page: OnboardingPage,
+    isVisible: Boolean
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -148,37 +178,120 @@ private fun PageContent(page: OnboardingPage) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Flat, hairline-bordered circle instead of a heavy shadow.
-        Box(
-            modifier = Modifier
-                .size(160.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surface)
-                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = page.icon,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.primary
+        when (val visual = page.visual) {
+            PageVisual.Brand -> BrandHero(isVisible = isVisible)
+            PageVisual.Showcase -> ShowcaseHero(titleRes = page.titleRes, isVisible = isVisible)
+            PageVisual.Orders -> OrdersHero(
+                titleRes = page.titleRes,
+                subtitleRes = page.subtitleRes,
+                isVisible = isVisible
             )
         }
+    }
+}
 
-        Spacer(modifier = Modifier.height(40.dp))
-
-        Text(
-            text = stringResource(page.titleRes),
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center
+/** The animated showcase, capped so the headline still fits on small screens. */
+@Composable
+private fun ShowcaseHero(@StringRes titleRes: Int, isVisible: Boolean) {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val side = if (maxHeight.value.isFinite()) min(maxWidth, maxHeight * 0.72f) else maxWidth
+        EssentialsShowcase(
+            visible = isVisible,
+            modifier = Modifier.size(side)
         )
+    }
 
+    Spacer(modifier = Modifier.height(24.dp))
+
+    PageHeadline(titleRes = titleRes, subtitleRes = 0)
+}
+
+/** The animated quick-orders scene, capped so the headline still fits. */
+@Composable
+private fun OrdersHero(
+    @StringRes titleRes: Int,
+    @StringRes subtitleRes: Int,
+    isVisible: Boolean
+) {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val side = if (maxHeight.value.isFinite()) min(maxWidth, maxHeight * 0.72f) else maxWidth
+        QuickOrdersShowcase(
+            visible = isVisible,
+            modifier = Modifier.width(side)
+        )
+    }
+
+    Spacer(modifier = Modifier.height(24.dp))
+
+    PageHeadline(titleRes = titleRes, subtitleRes = subtitleRes)
+}
+
+/** Green headline plus the optional muted body copy. */
+@Composable
+private fun PageHeadline(@StringRes titleRes: Int, @StringRes subtitleRes: Int) {
+    Text(
+        text = stringResource(titleRes),
+        style = MaterialTheme.typography.headlineSmall,
+        color = MaterialTheme.colorScheme.primary,
+        textAlign = TextAlign.Center
+    )
+
+    if (subtitleRes != 0) {
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = stringResource(page.subtitleRes),
+            text = stringResource(subtitleRes),
             style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun BrandHero(isVisible: Boolean) {
+    val enterProgress by animateFloatAsState(
+        targetValue = if (isVisible) 1f else 0f,
+        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
+        label = "brandHeroProgress"
+    )
+    val alpha = enterProgress
+    val scale = 0.92f + (0.08f * enterProgress)
+
+    Column(
+        modifier = Modifier
+            .graphicsLayer {
+                this.alpha = alpha
+                this.scaleX = scale
+                this.scaleY = scale
+            },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            imageVector = BrandMark,
+            contentDescription = null,
+            modifier = Modifier.size(150.dp)
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Box(
+            modifier = Modifier
+                .width(48.dp)
+                .height(3.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.secondary)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        BrandLockup(wordmarkStyle = MaterialTheme.typography.displayMedium)
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = stringResource(R.string.onboarding_tagline),
+            style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )

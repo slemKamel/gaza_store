@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -39,17 +40,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.slem.gazastor.R
+import com.slem.gazastor.ui.components.EmptyState
 import com.slem.gazastor.ui.components.ErrorState
 import com.slem.gazastor.ui.components.LoadingIndicator
 import com.slem.gazastor.ui.components.PriceText
+import com.slem.gazastor.ui.components.ProductImage
 import com.slem.gazastor.ui.components.QuantityStepper
+import com.slem.gazastor.ui.model.ItemUi
 import com.slem.gazastor.ui.screens.cart.CartViewModel
+import com.slem.gazastor.ui.theme.Dimens
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,9 +74,46 @@ fun DetailScreen(
         quantity = 1
     }
 
+    DetailContent(
+        uiState = uiState,
+        quantity = quantity,
+        onQuantityChange = { quantity = it },
+        onAddToCart = { item, selectedQuantity ->
+            cartViewModel.addItem(item, selectedQuantity)
+            quantity = 1
+            scope.launch { snackbarHostState.showSnackbar(addedMessage) }
+        },
+        onBackClick = onBackClick,
+        onRetry = viewModel::retry,
+        snackbarHostState = snackbarHostState
+    )
+}
+
+/** Stateless product detail: gallery, price, quantity picker and add-to-cart. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun DetailContent(
+    uiState: DetailUiState,
+    quantity: Int,
+    onQuantityChange: (Int) -> Unit,
+    onAddToCart: (ItemUi, Int) -> Unit,
+    onBackClick: () -> Unit,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+) {
     Scaffold(
+        modifier = modifier,
         containerColor = MaterialTheme.colorScheme.background,
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        },
         topBar = {
             TopAppBar(
                 title = { Text(uiState.item?.title ?: stringResource(R.string.title_detail)) },
@@ -106,7 +146,7 @@ fun DetailScreen(
             }
 
             if (uiState.isError) {
-                ErrorState(onRetry = viewModel::retry)
+                ErrorState(onRetry = onRetry)
             }
 
             uiState.item?.let { item ->
@@ -124,14 +164,13 @@ fun DetailScreen(
                             state = pagerState,
                             modifier = Modifier.fillMaxWidth()
                         ) { page ->
-                            AsyncImage(
+                            ProductImage(
                                 model = gallery[page],
                                 contentDescription = item.title,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(260.dp)
-                                    .clip(MaterialTheme.shapes.medium),
-                                contentScale = ContentScale.Crop
+                                    .clip(MaterialTheme.shapes.medium)
                             )
                         }
 
@@ -192,20 +231,16 @@ fun DetailScreen(
                         )
                         QuantityStepper(
                             quantity = quantity,
-                            onDecrease = { if (quantity > 1) quantity-- },
-                            onIncrease = { quantity++ }
+                            onDecrease = { if (quantity > 1) onQuantityChange(quantity - 1) },
+                            onIncrease = { onQuantityChange(quantity + 1) }
                         )
                     }
 
                     Button(
-                        onClick = {
-                            cartViewModel.addItem(item, quantity)
-                            quantity = 1
-                            scope.launch { snackbarHostState.showSnackbar(addedMessage) }
-                        },
+                        onClick = { onAddToCart(item, quantity) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp)
+                            .height(Dimens.ButtonHeight)
                     ) {
                         Text(
                             text = stringResource(R.string.cart_add_to_cart),
@@ -215,7 +250,9 @@ fun DetailScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            if (uiState.item == null && !uiState.isLoading && !uiState.isError) {
+                EmptyState(message = stringResource(R.string.detail_not_found))
+            }
         }
     }
 }

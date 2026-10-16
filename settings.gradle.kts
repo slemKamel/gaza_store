@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Gaza Stor"
+rootProject.name = "Gaza Store"
 include(":app")

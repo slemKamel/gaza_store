@@ -1,6 +1,6 @@
-# Gaza Stor
+# Gaza Store
 
-Gaza Stor is an Android mobile application built with Jetpack Compose. It is **Arabic-only with a forced RTL layout** (independent of the device language) and Material 3 theming with edge-to-edge support.
+Gaza Store is an Android mobile application built with Jetpack Compose. It is **Arabic-only with a forced RTL layout** (independent of the device language) and Material 3 theming with edge-to-edge support.
 
 Navigation is a single navigation graph: a splash, then a **3-page onboarding** flow on first launch, then a **sign in / sign up screen** (skippable via "متابعة كزائر"), then a **5-tab bottom bar** (Home, Search, Cart, Orders, Account) with detail routes pushed on top (`list/{categoryId}`, `detail/{itemId}`). The bottom bar is only shown on its own destinations. Onboarding and the sign-in prompt are each remembered locally (DataStore), so returning users land straight on Home; guests get the full catalog without an account. Home, category lists and search results are **two-column product grids**.
 
@@ -59,7 +59,7 @@ An **admin dashboard website** lives in [`web/`](./web) (Next.js 16 + TypeScript
   - `core/` - Constants (incl. `DELIVERY_FEE`), manual DI, navigation graph
   - `data/` - DTOs, DTO mappers, Supabase client, local DataStore (preferences + cart), repositories (`ContentRepository`, `AuthRepository`, `CartRepository`, `OrderRepository`, all return `Result`)
   - `ui/` - UI models, screens (splash/onboarding/auth/home/list/detail/search/cart/checkout/orders/account + ViewModels), theme, shared `components/`
-- `app/src/main/res/` - Android resources (incl. `font/` with the bundled Arabic font)
+- `app/src/main/res/` - Android resources (incl. `font/` with the bundled OFL fonts)
 - `licenses/` - Third-party font licenses (OFL)
 - `app/src/test/` - Unit tests
 - `app/src/androidTest/` - Instrumented tests
@@ -84,9 +84,16 @@ Fixed light-only brand theme (dynamic color is disabled so branding is consisten
 | Accent (10%) | muted copper `#A9744F` — prices, badges, links only |
 | Text | near-black `#1C1B17`; headings in forest green |
 
-- Typography uses **IBM Plex Sans Arabic** (OFL), bundled in `app/src/main/res/font/` so it works offline. License in `licenses/`.
-- Shapes are small (6–16 dp); gradients and heavy shadows are avoided per the brand rules.
-- Shared UI pieces live in `ui/components/` (`ItemGridCard`, `SectionTitle`, `PriceText`, `AmountText`, `QuantityStepper`, `SignInRequired`, `LoadingIndicator`, `ErrorState`, `EmptyState`, `fullWidthItem`).
+- **Typography** uses four OFL families, all bundled in `app/src/main/res/font/` so they work offline (licenses in `licenses/`). The roles live in one place, `ui/theme/Type.kt`:
+  - **IBM Plex Sans Arabic** — every Arabic UI string: body, labels, buttons, tab bar, section headings.
+  - **Amiri** — the Arabic wordmark "متجر غزة" and the large decorative `display*` tier.
+  - **Bodoni Moda** — the Latin half of the brand lockup ("GAZA STORE"), letter-spaced.
+  - **Inter** — Latin text and figures (prices, totals, quantities).
+  Compose has no `:lang(ar)` selector and no reliable glyph fallback across a `FontFamily`, so each script is applied explicitly. Never hardcode fonts or colors — read them from `MaterialTheme`.
+- The brand mark is a Compose `ImageVector` in `app/src/main/java/com/slem/gazastor/ui/components/BrandMark.kt` (copper gradient disc + cream rounded square + shopping bag). It shows on the splash above the shared `BrandLockup` — "متجر غزة" in Amiri over a letter-spaced "GAZA STORE" in Bodoni Moda — and the adaptive launcher icon uses `ic_launcher_foreground` on a flat beige `ic_launcher_background`.
+- Shapes are small (6–16 dp); gradients and heavy shadows are avoided on surfaces per the brand rules (the one exception is the onboarding showcase's vector illustration, which needs them for the copper trim and the warm aura).
+- The second onboarding page shows `ui/components/EssentialsShowcase.kt` — a Compose transcription of a Stitch SVG export. Four category badges (أزياء / منزل / جمال / تقنية) orbit the luxury bag, descend into a horizontal row on a glowing shelf line, settle and repeat on a 9.5 s loop. It is drawn on a `Canvas` in the export's own 400 × 400 coordinate space, and the loop only starts once the page is on screen.
+- Shared UI pieces live in `ui/components/` (`EssentialsShowcase`, `ItemGridCard`, `SectionTitle`, `PriceText`, `AmountText`, `QuantityStepper`, `SignInRequired`, `LoadingIndicator`, `ErrorState`, `EmptyState`, `fullWidthItem`).
 - Product detail shows a swipeable gallery (`HorizontalPager`) built from `items.images`, with a single image as a fallback.
 - Data failures are surfaced (error + retry) instead of showing a silently empty store; the repository returns `Result` instead of swallowing exceptions.
 
@@ -129,7 +136,7 @@ Fixed light-only brand theme (dynamic color is disabled so branding is consisten
 
 ## Admin dashboard (`web/`)
 
-A Next.js 16 web app that controls the content shown in the mobile app. It reuses the app's **"Quiet Luxury"** design (same beige/forest-green/copper palette, IBM Plex Sans Arabic via `next/font/local`, Arabic + RTL, light-only).
+A Next.js 16 web app that controls the content shown in the mobile app. It reuses the app's **"Quiet Luxury"** design (same beige/forest-green/copper palette, the same self-hosted OFL families via `next/font/local` — plus Playfair Display for Latin headings — Arabic + RTL, light-only).
 
 **Scope**
 

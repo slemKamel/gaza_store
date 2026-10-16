@@ -1,7 +1,7 @@
 package com.slem.gazastor.core.config
 
 object Constants {
-    const val APP_NAME = "Gaza Stor"
+    const val APP_NAME = "Gaza Store"
 
     /**
      * Flat delivery fee added to every non-empty cart, in shekels.

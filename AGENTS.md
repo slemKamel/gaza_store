@@ -1,8 +1,8 @@
-# AGENTS.md - Gaza Stor
+# AGENTS.md - Gaza Store
 
 ## Project overview
 
-Gaza Stor is an Android mobile application built with Jetpack Compose. It uses a Material 3 theme (GazaStorTheme) with edge-to-edge support and a navigation graph made of a 5-tab bottom bar (Home, Search, Cart, Orders, Account) plus pushed routes (List, Detail). Home, category and search results render as two-column product grids. Data is loaded through a Supabase-backed repository (postgrest) using MVVM (ViewModel + StateFlow). The package name is `com.slem.gazastor`.
+Gaza Store is an Android mobile application built with Jetpack Compose. It uses a Material 3 theme (GazaStorTheme) with edge-to-edge support and a navigation graph made of a 5-tab bottom bar (Home, Search, Cart, Orders, Account) plus pushed routes (List, Detail). Home, category and search results render as two-column product grids. Data is loaded through a Supabase-backed repository (postgrest) using MVVM (ViewModel + StateFlow). The package name is `com.slem.gazastor`.
 
 The app works with Supabase as its backend. An **admin dashboard website** lives in `web/` (Next.js 16 + TypeScript + Tailwind + shadcn-style UI, Arabic/RTL, same "Quiet Luxury" design as the app) and manages categories, items, banners and orders. Access is restricted to `profiles.role = 'admin'` (server-side route guard + server-action guard + RLS).
 
@@ -43,7 +43,7 @@ The app works with Supabase as its backend. An **admin dashboard website** lives
 │       │   │   │   └── repository/           # ContentRepository, AuthRepository, CartRepository, OrderRepository
 │       │   │   └── ui/
 │       │   │       ├── model/                # CategoryUi, ItemUi, BannerUi, PriceFormat, DateFormats
-│       │   │       ├── components/           # ItemGridCard, SectionTitle, PriceText, AmountText, QuantityStepper, SignInRequired, Loading/Error/Empty
+│       │   │       ├── components/           # EssentialsShowcase, QuickOrdersShowcase, ItemGridCard, SectionTitle, PriceText, AmountText, QuantityStepper, SignInRequired, Loading/Error/Empty
 │       │   │       ├── screens/              # splash, onboarding, auth, home, list, detail, search, cart, checkout, orders, account
 │       │   │       └── theme/                # Color.kt (brand palette), Theme.kt, Type.kt
 │       │   ├── keepRules/rules.keep          # R8/ProGuard rules
@@ -59,7 +59,7 @@ The app works with Supabase as its backend. An **admin dashboard website** lives
 │   ├── src/lib/                    # Supabase clients, auth guards, format/constants/query, DB types
 │   ├── src/proxy.ts                # Session refresh + optimistic redirect (Next 16 proxy)
 │   └── README.md                   # Dashboard docs (setup, commands, security)
-├── licenses/                       # Third-party licenses (IBM Plex Sans Arabic, OFL)
+├── licenses/                       # Third-party font licenses (OFL: IBM Plex Sans Arabic, Amiri, Bodoni Moda, Inter, Playfair Display)
 ├── gradle/
 │   ├── libs.versions.toml         # Version catalog
 │   └── wrapper/gradle-wrapper.properties
@@ -125,19 +125,19 @@ Config lives in `web/.env.local` (gitignored; copy `web/.env.example`).
 - **Imports**: Explicit preferred
 - **Resources**: `lowercase_underscore`
 - **Strings**: Extract to `res/values/strings.xml`
-- **Design ("Quiet Luxury")**: fixed light-only theme, dynamic color disabled. Beige `#F5F1EA` backgrounds (60%), deep forest green `#1F3A32` primary (30%), muted copper `#A9744F` accent for prices/badges only (10%). Flat surfaces with hairline `#E0D8CB` borders - avoid gradients and heavy shadows. Typography uses **IBM Plex Sans Arabic** (OFL, bundled in `res/font/`); never hardcode fonts or colors — read them from `MaterialTheme`.
+- **Design ("Quiet Luxury")**: fixed light-only theme, dynamic color disabled. Beige `#F5F1EA` backgrounds (60%), deep forest green `#1F3A32` primary (30%), muted copper `#A9744F` accent for prices/badges only (10%). Flat surfaces with hairline `#E0D8CB` borders - avoid gradients and heavy shadows. **Typography** ships four OFL families bundled in `res/font/` (offline) with the roles defined once in `ui/theme/Type.kt`: **IBM Plex Sans Arabic** for all Arabic UI (body, labels, buttons, tab bar, section headings), **Amiri** for the Arabic wordmark and the `display*` tier, **Bodoni Moda** for the letter-spaced Latin lockup, **Inter** for Latin text and figures. Compose has no `:lang(ar)` selector and no reliable glyph fallback across a `FontFamily`, so each script is applied explicitly. Never hardcode fonts or colors — read them from `MaterialTheme`. The brand mark (`ui/components/BrandMark.kt`, a Compose `ImageVector`) sits above the shared `BrandLockup` on the splash and the onboarding hero; the adaptive launcher icon uses `res/drawable/ic_launcher_foreground.xml` over a flat beige `ic_launcher_background`.
 - **Language**: Arabic-only. The default locale is Arabic and the UI is forced RTL (`LayoutDirection.Rtl` in `MainActivity`) regardless of the device language. Format prices with the `price_format` string (Shekel `₪`); bare amounts (totals, order lines) use `AmountText` + `currency_format` and `formatPriceValue` (Western digits, e.g. `1,500 ₪`).
 - **Gradle**: Use version catalog aliases (`libs.*`)
-- **Admin dashboard**: mirror the same design tokens and Arabic labels/formatting as the app (`web/src/app/globals.css`, `web/src/lib/constants.ts`, `web/src/lib/format.ts`). Keep the UI Arabic + RTL and light-only.
+- **Admin dashboard**: mirror the same design tokens, type roles and Arabic labels/formatting as the app (`web/src/app/globals.css`, `web/src/app/layout.tsx`, `web/src/lib/constants.ts`, `web/src/lib/format.ts`). Keep the UI Arabic + RTL and light-only.
 
 ## Architecture notes
 
 - Single-activity Jetpack Compose app (`MainActivity` extends `ComponentActivity`, sets content with `GazaStorTheme`)
 - `enableEdgeToEdge()` enabled, with light system-bar icons forced (the UI is light-only)
-- **Theme:** light-only "Quiet Luxury" brand theme (`GazaStorTheme`); dynamic color is disabled. Arabic typography uses the bundled IBM Plex Sans Arabic font
+- **Theme:** light-only "Quiet Luxury" brand theme (`GazaStorTheme`); dynamic color is disabled. Typography roles (IBM Plex Sans Arabic, Amiri, Bodoni Moda, Inter) are defined in `ui/theme/Type.kt` and bundled in `res/font/`
 - **Screens:** every data-driven screen consumes a `UiState` with `isLoading`/`isError`/`isEmpty` and renders shared `ui/components/` pieces for loading, error+retry, and empty states
 - **Navigation:** `core/navigation/NavGraph.kt` owns the `Screen` route constants and shows the bottom bar only on its 5 destinations. Tabs navigate with `launchSingleTop` + `restoreState`/`saveState`; overlays like Detail hide the bar. Flow is Splash -> Onboarding -> Auth (both first-launch only) -> Home, then the tabs
-- **Onboarding:** `SplashViewModel` reads the local flags (`OnboardingPreferences`/`AuthPreferences`, DataStore-backed `UserPreferences`) and routes to `onboarding`, `auth` or `home`; `OnboardingScreen` is a 3-page skippable `HorizontalPager` and `OnboardingViewModel.complete()` persists the flag *before* navigating so it can't reappear
+- **Onboarding:** `SplashViewModel` reads the local flags (`OnboardingPreferences`/`AuthPreferences`, DataStore-backed `UserPreferences`) and routes to `onboarding`, `auth` or `home`; `OnboardingScreen` is a 3-page skippable `HorizontalPager` and `OnboardingViewModel.complete()` persists the flag *before* navigating so it can't reappear. Its second page renders `ui/components/EssentialsShowcase.kt`, a Compose transcription of a Stitch SVG export
 - **Auth:** `AuthRepository` wraps supabase-kt Auth (email/password) behind `Result`; `AuthViewModel` owns the shared `AuthContent` form (used full-screen after onboarding and inside the Account tab). Choosing "متابعة كزائر" sets `auth_prompt_seen` and lets guests use the whole catalog; `AccountViewModel` mirrors `sessionState` and loads the `profiles` row
 - **Local storage:** device-scoped flags live in `data/preferences` behind interfaces (fakeable in tests). `AppModule.init(context)` is called from `GazaStorApp` to give it an application context. Supabase session persistence uses supabase-kt's default settings-backed session manager (no extra wiring needed)
 - **Grids:** catalog screens use `LazyVerticalGrid` (2 columns) with `fullWidthItem` for full-bleed sections; search debounces ~300 ms in `SearchViewModel` and queries Postgrest with an escaped `ilike` OR-filter
@@ -192,6 +192,7 @@ Config lives in `web/.env.local` (gitignored; copy `web/.env.example`).
 - **Static analysis**: Only Android Lint configured (no ktlint/detekt)
 - **Promoting the first admin**: a plain `update public.profiles set role='admin' ...` is blocked by the `prevent_role_escalation` trigger ("Only admins can change the role"). The very first admin needs a one-time trigger bypass (see README.md). Later promotions work directly.
 - **Next 16 dashboard**: middleware is now `proxy.ts` (exports `proxy`); typed routes are on; `cookies()` is async. Cache Components are disabled on purpose (see `web/README.md`)
+- **Showcase animation**: `ui/components/EssentialsShowcase.kt` keeps the Stitch export's 400x400 coordinate space so its numbers can be checked against the source SVG. CSS applies `animation-timing-function` to *each* keyframe segment, and Compose's `keyframes` spec defaults to a per-segment linear ramp, so `keyframesValue()` applies `CubicBezierEasing(0.42, 0, 0.58, 1)` (CSS `ease-in-out`) per segment — using `FastOutSlowInEasing` instead would drift from the original
 
 ## TODOs
 

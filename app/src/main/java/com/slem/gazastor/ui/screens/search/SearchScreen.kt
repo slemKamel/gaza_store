@@ -19,9 +19,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,10 +36,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.slem.gazastor.R
+import com.slem.gazastor.ui.components.AppTextField
 import com.slem.gazastor.ui.components.EmptyState
 import com.slem.gazastor.ui.components.ErrorState
 import com.slem.gazastor.ui.components.ItemGridCard
 import com.slem.gazastor.ui.components.LoadingIndicator
+import com.slem.gazastor.ui.components.SectionTitle
+import com.slem.gazastor.ui.components.fullWidthItem
+import com.slem.gazastor.ui.theme.Dimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,6 +53,23 @@ fun SearchScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    SearchContent(
+        uiState = uiState,
+        onQueryChange = viewModel::onQueryChange,
+        onItemClick = onItemClick,
+        onRetry = viewModel::retry
+    )
+}
+
+/** Stateless search box + result states. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun SearchContent(
+    uiState: SearchUiState,
+    onQueryChange: (String) -> Unit,
+    onItemClick: (String) -> Unit,
+    onRetry: () -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -67,14 +87,14 @@ fun SearchScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            OutlinedTextField(
+            AppTextField(
                 value = uiState.query,
-                onValueChange = viewModel::onQueryChange,
+                onValueChange = onQueryChange,
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                placeholder = { Text(stringResource(R.string.search_hint)) },
+                    .padding(horizontal = Dimens.ScreenPadding),
+                placeholder = stringResource(R.string.search_hint),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Search,
@@ -83,7 +103,7 @@ fun SearchScreen(
                 },
                 trailingIcon = {
                     if (uiState.query.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.onQueryChange("") }) {
+                        IconButton(onClick = { onQueryChange("") }) {
                             Icon(
                                 imageVector = Icons.Filled.Clear,
                                 contentDescription = stringResource(R.string.action_clear)
@@ -91,20 +111,20 @@ fun SearchScreen(
                         }
                     }
                 },
-                shape = MaterialTheme.shapes.small,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                    cursorColor = MaterialTheme.colorScheme.primary
-                ),
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Search
                 )
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Dimens.SectionSpacing))
+
+            if (uiState.isLoading && uiState.results.isNotEmpty()) {
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            }
 
             Box(
                 modifier = Modifier
@@ -116,11 +136,14 @@ fun SearchScreen(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 16.dp),
-                        contentPadding = PaddingValues(bottom = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                            .padding(horizontal = Dimens.ScreenPadding),
+                        contentPadding = PaddingValues(bottom = Dimens.ScreenPadding),
+                        horizontalArrangement = Arrangement.spacedBy(Dimens.GridSpacing),
+                        verticalArrangement = Arrangement.spacedBy(Dimens.GridSpacing)
                     ) {
+                        fullWidthItem(key = "results-title") {
+                            SectionTitle(stringResource(R.string.search_results_title))
+                        }
                         items(uiState.results, key = { it.id }) { item ->
                             ItemGridCard(item, onClick = { onItemClick(item.id) })
                         }
@@ -133,7 +156,7 @@ fun SearchScreen(
                         when {
                             uiState.isLoading -> LoadingIndicator()
 
-                            uiState.isError -> ErrorState(onRetry = viewModel::retry)
+                            uiState.isError -> ErrorState(onRetry = onRetry)
 
                             uiState.isEmpty -> EmptyState(
                                 message = stringResource(R.string.search_no_results)

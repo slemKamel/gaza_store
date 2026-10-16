@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -25,11 +27,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.slem.gazastor.R
+import com.slem.gazastor.ui.components.PillBadge
 import com.slem.gazastor.ui.screens.auth.AuthContent
+import com.slem.gazastor.ui.theme.Dimens
 
 private const val ADMIN_ROLE = "admin"
 
@@ -79,13 +82,15 @@ fun AccountScreen(
 }
 
 @Composable
-private fun ProfileContent(
+internal fun ProfileContent(
     uiState: AccountUiState,
     onSignOut: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.padding(24.dp),
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(24.dp))
@@ -137,7 +142,7 @@ private fun ProfileContent(
             enabled = !uiState.isSigningOut,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
+                .height(Dimens.ButtonHeight)
         ) {
             Text(
                 text = stringResource(R.string.account_sign_out),
@@ -149,18 +154,20 @@ private fun ProfileContent(
 
 @Composable
 private fun RoleBadge(role: String?) {
-    val label = when (role) {
-        ADMIN_ROLE -> stringResource(R.string.account_role_admin)
-        else -> stringResource(R.string.account_role_customer)
-    }
-    Text(
-        text = label,
-        style = MaterialTheme.typography.labelMedium,
-        fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.onSecondaryContainer,
-        modifier = Modifier
-            .clip(MaterialTheme.shapes.small)
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-            .padding(horizontal = 12.dp, vertical = 6.dp)
+    val isAdmin = role == ADMIN_ROLE
+    PillBadge(
+        text = stringResource(
+            if (isAdmin) R.string.account_role_admin else R.string.account_role_customer
+        ),
+        containerColor = if (isAdmin) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.secondaryContainer
+        },
+        contentColor = if (isAdmin) {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSecondaryContainer
+        }
     )
 }

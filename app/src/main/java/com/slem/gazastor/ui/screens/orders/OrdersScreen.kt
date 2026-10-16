@@ -18,7 +18,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -28,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.slem.gazastor.R
@@ -36,7 +34,9 @@ import com.slem.gazastor.ui.components.AmountText
 import com.slem.gazastor.ui.components.EmptyState
 import com.slem.gazastor.ui.components.ErrorState
 import com.slem.gazastor.ui.components.LoadingIndicator
+import com.slem.gazastor.ui.components.PillBadge
 import com.slem.gazastor.ui.components.SignInRequired
+import com.slem.gazastor.ui.theme.Dimens
 
 private const val STATUS_PENDING = "pending"
 private const val STATUS_CONFIRMED = "confirmed"
@@ -52,6 +52,21 @@ fun OrdersScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    OrdersContent(
+        uiState = uiState,
+        onSignInClick = onSignInClick,
+        onRetry = viewModel::retry
+    )
+}
+
+/** Stateless order history with sign-in, loading, error and empty states. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun OrdersContent(
+    uiState: OrdersUiState,
+    onSignInClick: () -> Unit,
+    onRetry: () -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -80,7 +95,7 @@ fun OrdersScreen(
             )
 
             uiState.isError -> ErrorState(
-                onRetry = viewModel::retry,
+                onRetry = onRetry,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
@@ -97,8 +112,8 @@ fun OrdersScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                contentPadding = PaddingValues(Dimens.ScreenPadding),
+                verticalArrangement = Arrangement.spacedBy(Dimens.GridSpacing)
             ) {
                 items(items = uiState.orders, key = { it.id }) { order ->
                     OrderCard(order = order)
@@ -114,7 +129,7 @@ private fun OrderCard(order: OrderUi) {
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = BorderStroke(Dimens.Border, MaterialTheme.colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
@@ -202,18 +217,19 @@ private fun OrderCard(order: OrderUi) {
 
 @Composable
 private fun StatusBadge(status: String) {
-    Surface(
-        shape = MaterialTheme.shapes.small,
-        color = MaterialTheme.colorScheme.secondaryContainer
-    ) {
-        Text(
-            text = status.label(),
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-        )
+    val (container, content) = when (status) {
+        STATUS_PENDING -> MaterialTheme.colorScheme.secondaryContainer to
+            MaterialTheme.colorScheme.onSecondaryContainer
+        STATUS_CONFIRMED -> MaterialTheme.colorScheme.primaryContainer to
+            MaterialTheme.colorScheme.onPrimaryContainer
+        STATUS_DELIVERED -> MaterialTheme.colorScheme.primary to
+            MaterialTheme.colorScheme.onPrimary
+        STATUS_CANCELLED -> MaterialTheme.colorScheme.errorContainer to
+            MaterialTheme.colorScheme.onErrorContainer
+        else -> MaterialTheme.colorScheme.surfaceVariant to
+            MaterialTheme.colorScheme.onSurfaceVariant
     }
+    PillBadge(text = status.label(), containerColor = container, contentColor = content)
 }
 
 @Composable
@@ -223,5 +239,5 @@ private fun String.label(): String = when (this) {
     STATUS_SHIPPED -> stringResource(R.string.orders_status_shipped)
     STATUS_DELIVERED -> stringResource(R.string.orders_status_delivered)
     STATUS_CANCELLED -> stringResource(R.string.orders_status_cancelled)
-    else -> this
+    else -> stringResource(R.string.orders_status_unknown)
 }

@@ -15,9 +15,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -37,6 +39,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.slem.gazastor.R
+import com.slem.gazastor.ui.components.AppTextField
+import com.slem.gazastor.ui.theme.Dimens
 
 /**
  * First-launch sign-in screen. Guests reach the app through
@@ -83,6 +87,32 @@ fun AuthContent(
         }
     }
 
+    AuthForm(
+        uiState = uiState,
+        onModeChange = viewModel::onModeChange,
+        onEmailChange = viewModel::onEmailChange,
+        onPasswordChange = viewModel::onPasswordChange,
+        onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
+        onSubmit = viewModel::submit,
+        onGuest = viewModel::continueAsGuest,
+        showHeader = showHeader,
+        modifier = modifier
+    )
+}
+
+/** Stateless email/password form, so it can be previewed and reused. */
+@Composable
+internal fun AuthForm(
+    uiState: AuthUiState,
+    onModeChange: (AuthMode) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit,
+    onSubmit: () -> Unit,
+    onGuest: () -> Unit,
+    modifier: Modifier = Modifier,
+    showHeader: Boolean = false
+) {
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -109,16 +139,15 @@ fun AuthContent(
 
         ModeSelector(
             mode = uiState.mode,
-            onModeChange = viewModel::onModeChange
+            onModeChange = onModeChange
         )
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        OutlinedTextField(
+        AppTextField(
             value = uiState.email,
-            onValueChange = viewModel::onEmailChange,
-            label = { Text(stringResource(R.string.auth_email_label)) },
-            singleLine = true,
+            onValueChange = onEmailChange,
+            label = stringResource(R.string.auth_email_label),
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Email,
@@ -128,11 +157,10 @@ fun AuthContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        OutlinedTextField(
+        AppTextField(
             value = uiState.password,
-            onValueChange = viewModel::onPasswordChange,
-            label = { Text(stringResource(R.string.auth_password_label)) },
-            singleLine = true,
+            onValueChange = onPasswordChange,
+            label = stringResource(R.string.auth_password_label),
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = if (uiState.isPasswordVisible) {
                 VisualTransformation.None
@@ -144,16 +172,22 @@ fun AuthContent(
                 imeAction = ImeAction.Done
             ),
             trailingIcon = {
-                TextButton(onClick = viewModel::onTogglePasswordVisibility) {
-                    Text(
-                        text = stringResource(
+                IconButton(onClick = onTogglePasswordVisibility) {
+                    Icon(
+                        painter = painterResource(
+                            if (uiState.isPasswordVisible) {
+                                R.drawable.ic_visibility_off
+                            } else {
+                                R.drawable.ic_visibility
+                            }
+                        ),
+                        contentDescription = stringResource(
                             if (uiState.isPasswordVisible) {
                                 R.string.auth_hide_password
                             } else {
                                 R.string.auth_show_password
                             }
-                        ),
-                        style = MaterialTheme.typography.labelMedium
+                        )
                     )
                 }
             }
@@ -182,11 +216,11 @@ fun AuthContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = viewModel::submit,
+            onClick = onSubmit,
             enabled = !uiState.isSubmitting,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
+                .height(Dimens.ButtonHeight)
         ) {
             if (uiState.isSubmitting) {
                 CircularProgressIndicator(
@@ -226,7 +260,7 @@ fun AuthContent(
         Spacer(modifier = Modifier.height(12.dp))
 
         TextButton(
-            onClick = viewModel::continueAsGuest,
+            onClick = onGuest,
             enabled = !uiState.isSubmitting
         ) {
             Text(

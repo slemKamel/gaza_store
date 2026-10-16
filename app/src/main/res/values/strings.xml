@@ -1,5 +1,9 @@
 <resources>
-    <string name="app_name">Gaza Stor</string>
+    <string name="app_name">Gaza Store</string>
+
+    <!-- Brand lockups: the Arabic wordmark (Amiri) and its Latin pair (Bodoni Moda) -->
+    <string name="brand_wordmark">متجر غزة</string>
+    <string name="brand_wordmark_latin">GAZA STORE</string>
 
     <!-- Splash -->
     <string name="splash_tagline">تسوّق الأناقة والجودة</string>
@@ -8,12 +12,16 @@
     <string name="onboarding_skip">تخطي</string>
     <string name="onboarding_next">التالي</string>
     <string name="onboarding_start">ابدأ التسوق</string>
-    <string name="onboarding_title_browse">تصفّح المنتجات</string>
-    <string name="onboarding_subtitle_browse">تنقّل بين الأقسام واكتشف أحدث المنتجات بسهولة.</string>
-    <string name="onboarding_title_offers">عروض حصرية</string>
-    <string name="onboarding_subtitle_offers">استفد من العروض والتخفيضات المميزة على منتجاتك المفضلة.</string>
+    <string name="onboarding_tagline">من غزة .. لأهل غزة</string>
+    <string name="onboarding_title_essentials">كل ما تحتاجه في مكان واحد</string>
+    <string name="onboarding_showcase_fashion">أزياء</string>
+    <string name="onboarding_showcase_home">منزل</string>
+    <string name="onboarding_showcase_beauty">جمال</string>
+    <string name="onboarding_showcase_tech">تقنية</string>
     <string name="onboarding_title_orders">طلبات سريعة</string>
     <string name="onboarding_subtitle_orders">أضف ما يعجبك إلى السلة وأكمل طلبك في خطوات بسيطة.</string>
+    <string name="onboarding_orders_box">صندوق مختار</string>
+    <string name="onboarding_orders_pill">اكتملت الإضافة • جاهز للطلب</string>
 
     <!-- Auth -->
     <string name="auth_welcome_title">مرحباً بك</string>
@@ -55,6 +63,7 @@
     <string name="search_hint">ابحث عن منتج…</string>
     <string name="search_prompt">اكتب اسم المنتج للبحث عنه</string>
     <string name="search_no_results">لا توجد نتائج مطابقة</string>
+    <string name="search_results_title">نتائج البحث</string>
     <string name="action_clear">مسح</string>
 
     <!-- Cart -->
@@ -101,6 +110,7 @@
     <string name="orders_status_shipped">قيد التوصيل</string>
     <string name="orders_status_delivered">تم التسليم</string>
     <string name="orders_status_cancelled">ملغي</string>
+    <string name="orders_status_unknown">غير معروف</string>
 
     <!-- Account -->
     <string name="title_account">حسابي</string>
@@ -111,6 +121,7 @@
     <!-- Titles and actions -->
     <string name="title_items">المنتجات</string>
     <string name="title_detail">التفاصيل</string>
+    <string name="detail_not_found">هذا المنتج غير متوفر حالياً</string>
     <string name="action_back">رجوع</string>
     <string name="action_retry">إعادة المحاولة</string>
     <string name="action_browse">تصفّح المنتجات</string>

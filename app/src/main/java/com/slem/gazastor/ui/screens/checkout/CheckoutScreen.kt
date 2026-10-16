@@ -2,7 +2,6 @@ package com.slem.gazastor.ui.screens.checkout
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,9 +20,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -31,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -39,8 +35,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.slem.gazastor.R
-import com.slem.gazastor.ui.components.AmountText
+import com.slem.gazastor.ui.components.AppTextField
 import com.slem.gazastor.ui.components.EmptyState
+import com.slem.gazastor.ui.components.PillBadge
+import com.slem.gazastor.ui.components.SectionTitle
+import com.slem.gazastor.ui.components.SummaryRow
+import com.slem.gazastor.ui.theme.Dimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +59,29 @@ fun CheckoutScreen(
         }
     }
 
+    CheckoutContent(
+        uiState = uiState,
+        onBackClick = onBackClick,
+        onCustomerNameChange = viewModel::onCustomerNameChange,
+        onPhoneChange = viewModel::onPhoneChange,
+        onAddressChange = viewModel::onAddressChange,
+        onNotesChange = viewModel::onNotesChange,
+        onSubmit = viewModel::submit
+    )
+}
+
+/** Stateless checkout form: delivery details, COD and the order summary. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun CheckoutContent(
+    uiState: CheckoutUiState,
+    onBackClick: () -> Unit,
+    onCustomerNameChange: (String) -> Unit,
+    onPhoneChange: (String) -> Unit,
+    onAddressChange: (String) -> Unit,
+    onNotesChange: (String) -> Unit,
+    onSubmit: () -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -99,26 +122,20 @@ fun CheckoutScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = stringResource(R.string.checkout_delivery_details),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
+            SectionTitle(stringResource(R.string.checkout_delivery_details))
 
-            OutlinedTextField(
+            AppTextField(
                 value = uiState.customerName,
-                onValueChange = viewModel::onCustomerNameChange,
-                label = { Text(stringResource(R.string.checkout_name)) },
-                singleLine = true,
+                onValueChange = onCustomerNameChange,
+                label = stringResource(R.string.checkout_name),
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
             )
 
-            OutlinedTextField(
+            AppTextField(
                 value = uiState.phone,
-                onValueChange = viewModel::onPhoneChange,
-                label = { Text(stringResource(R.string.checkout_phone)) },
-                singleLine = true,
+                onValueChange = onPhoneChange,
+                label = stringResource(R.string.checkout_phone),
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
@@ -126,51 +143,35 @@ fun CheckoutScreen(
                 )
             )
 
-            OutlinedTextField(
+            AppTextField(
                 value = uiState.address,
-                onValueChange = viewModel::onAddressChange,
-                label = { Text(stringResource(R.string.checkout_address)) },
+                onValueChange = onAddressChange,
+                label = stringResource(R.string.checkout_address),
                 modifier = Modifier.fillMaxWidth(),
+                singleLine = false,
                 minLines = 2,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
             )
 
-            OutlinedTextField(
+            AppTextField(
                 value = uiState.notes,
-                onValueChange = viewModel::onNotesChange,
-                label = { Text(stringResource(R.string.checkout_notes)) },
+                onValueChange = onNotesChange,
+                label = stringResource(R.string.checkout_notes),
                 modifier = Modifier.fillMaxWidth(),
+                singleLine = false,
                 minLines = 2,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = stringResource(R.string.checkout_payment_method),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
+            SectionTitle(stringResource(R.string.checkout_payment_method))
 
-            Surface(
-                shape = MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.secondaryContainer
-            ) {
-                Text(
-                    text = stringResource(R.string.checkout_payment_cod),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                )
-            }
+            PillBadge(text = stringResource(R.string.checkout_payment_cod))
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = stringResource(R.string.checkout_order_summary),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
+            SectionTitle(stringResource(R.string.checkout_order_summary))
 
             SummaryRow(
                 label = stringResource(R.string.cart_items_count, uiState.itemCount),
@@ -201,11 +202,11 @@ fun CheckoutScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
-                onClick = viewModel::submit,
+                onClick = onSubmit,
                 enabled = !uiState.isSubmitting,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .height(Dimens.ButtonHeight)
             ) {
                 if (uiState.isSubmitting) {
                     CircularProgressIndicator(
@@ -220,38 +221,6 @@ fun CheckoutScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun SummaryRow(
-    label: String,
-    value: Double,
-    emphasized: Boolean = false
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        AmountText(
-            value = value,
-            style = if (emphasized) {
-                MaterialTheme.typography.titleMedium
-            } else {
-                MaterialTheme.typography.bodyMedium
-            },
-            color = if (emphasized) {
-                MaterialTheme.colorScheme.secondary
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            }
-        )
     }
 }
 
