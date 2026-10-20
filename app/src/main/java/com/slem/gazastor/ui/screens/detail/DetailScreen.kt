@@ -1,5 +1,6 @@
 package com.slem.gazastor.ui.screens.detail
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -156,7 +159,31 @@ internal fun DetailContent(
                         .distinct()
                 }
 
-                if (gallery.isNotEmpty()) {
+                if (gallery.isEmpty()) {
+                    // No photo at all: one large branded panel instead of an empty gap.
+                    // Styled like the product cards (same hairline), and with no pager
+                    // there are no dots or swipe hints to show.
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(Dimens.DetailImageHeight),
+                        shape = MaterialTheme.shapes.medium,
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        border = BorderStroke(Dimens.Border, MaterialTheme.colorScheme.outlineVariant),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    ) {
+                        ProductImage(
+                            model = null,
+                            contentDescription = item.title,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(MaterialTheme.shapes.medium),
+                            fallbackIconKey = item.iconKey
+                        )
+                    }
+                } else {
                     val pagerState = rememberPagerState(pageCount = { gallery.size })
 
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -169,8 +196,9 @@ internal fun DetailContent(
                                 contentDescription = item.title,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(260.dp)
-                                    .clip(MaterialTheme.shapes.medium)
+                                    .height(Dimens.DetailImageHeight)
+                                    .clip(MaterialTheme.shapes.medium),
+                                fallbackIconKey = item.iconKey
                             )
                         }
 

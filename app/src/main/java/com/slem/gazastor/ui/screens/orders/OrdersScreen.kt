@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -69,6 +70,10 @@ internal fun OrdersContent(
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        // The TopAppBar carries the status inset itself and the parent's
+        // bottom bar owns the bottom edge — no system insets here, or they'd
+        // pad the content twice.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.title_orders)) },

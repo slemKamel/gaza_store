@@ -8,5 +8,6 @@ data class CategoryDto(
     val name: String? = null,
     val slug: String? = null,
     val image_url: String? = null,
+    val icon_key: String? = null,
     val created_at: String? = null
 )

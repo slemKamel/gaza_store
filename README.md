@@ -106,7 +106,7 @@ Fixed light-only brand theme (dynamic color is disabled so branding is consisten
   ```
   They are exposed to Android via `BuildConfig` (fields `SUPABASE_URL`, `SUPABASE_ANON_KEY`). Without them the screens stay empty/loading.
 - The database schema lives in [`supabase/schema.sql`](./supabase/schema.sql) and is already applied to the project. It defines:
-  - `categories`, `items` (`price numeric(10,2)`, `images text[]`), `banners` - catalog content read by the app.
+  - `categories` (`icon_key` picks the outlined glyph the app draws in its Home chip row; unknown/blank falls back to a generic icon), `items` (`price numeric(10,2)`, `images text[]`), `banners` - catalog content read by the app.
   - `profiles` (linked 1:1 to `auth.users`, with `role` = `customer` | `admin`), `orders`, `order_items` - accounts and checkout (cash on delivery now; `payment_method`/`payment_status`/`payment_ref` are ready for online payment later).
   - Row Level Security on every table: public read of active catalog rows; all writes admin-only (`is_admin()`); customers can only see/create their own orders.
   - A `product-images` public Storage bucket with admin-only writes.

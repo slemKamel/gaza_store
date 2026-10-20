@@ -13,7 +13,13 @@ data class CartLine(
     val title: String,
     val unitPrice: Double,
     val imageUrl: String,
-    val quantity: Int
+    val quantity: Int,
+    /**
+     * `categories.icon_key` snapshot, so the cart row keeps its image fallback
+     * without a catalog round-trip. Added later than the first release, so the
+     * default keeps carts stored by older builds decodable.
+     */
+    val iconKey: String = ""
 ) {
     val lineTotal: Double get() = unitPrice * quantity
 }

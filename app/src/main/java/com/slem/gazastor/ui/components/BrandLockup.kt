@@ -12,9 +12,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.slem.gazastor.R
+import com.slem.gazastor.ui.theme.Dimens
 import com.slem.gazastor.ui.theme.LatinBrandFontFamily
 
 /**
@@ -24,7 +26,8 @@ import com.slem.gazastor.ui.theme.LatinBrandFontFamily
  * Both scripts are set explicitly because Compose offers no `:lang(ar)` switch
  * and glyph fallback across a [androidx.compose.ui.text.font.FontFamily] list is
  * not guaranteed. Letter spacing is only applied to the Latin line — it breaks
- * Arabic letter joining.
+ * Arabic letter joining. [lineGap] defaults to the shared [Dimens.BrandLineGap];
+ * the compact Home bar passes a tighter gap so its two lines read as one unit.
  */
 @Composable
 fun BrandLockup(
@@ -32,7 +35,8 @@ fun BrandLockup(
     wordmarkStyle: TextStyle = MaterialTheme.typography.displaySmall,
     latinStyle: TextStyle = MaterialTheme.typography.labelLarge,
     wordmarkColor: Color = MaterialTheme.colorScheme.primary,
-    latinColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    latinColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    lineGap: Dp = Dimens.BrandLineGap
 ) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
@@ -42,7 +46,7 @@ fun BrandLockup(
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(lineGap))
 
         Text(
             text = stringResource(R.string.brand_wordmark_latin),

@@ -31,8 +31,13 @@ android {
 
     buildTypes {
         release {
+            // Signed with the debug key so the minified build can be sideloaded
+            // for local testing. Swap in a real keystore before publishing.
+            signingConfig = signingConfigs.getByName("debug")
             optimization {
-                enable = false
+                // R8 minification: smaller APK and faster startup/scrolling
+                // than the debug build. Keep rules come from src/main/keepRules.
+                enable = true
             }
         }
     }

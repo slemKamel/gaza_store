@@ -94,6 +94,17 @@ class CartViewModelTest {
     }
 
     @Test
+    fun increase_addsOneToTheExistingLine() = runTest {
+        val viewModel = CartViewModel(FakeCartRepository(listOf(line)), FakeAuthRepository())
+        observe(viewModel)
+
+        viewModel.increase("item-1")
+        advanceUntilIdle()
+
+        assertEquals(3, viewModel.uiState.value.lines.first().quantity)
+    }
+
+    @Test
     fun decrease_removesTheLineWhenItReachesZero() = runTest {
         val viewModel = CartViewModel(FakeCartRepository(listOf(line)), FakeAuthRepository())
         observe(viewModel)

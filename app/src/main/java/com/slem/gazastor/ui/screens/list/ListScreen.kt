@@ -28,8 +28,12 @@ import com.slem.gazastor.R
 import com.slem.gazastor.ui.components.EmptyState
 import com.slem.gazastor.ui.components.ErrorState
 import com.slem.gazastor.ui.components.ItemGridCard
-import com.slem.gazastor.ui.components.LoadingIndicator
+import com.slem.gazastor.ui.components.QuickCartActions
+import com.slem.gazastor.ui.components.SkeletonCard
 import com.slem.gazastor.ui.components.fullWidthItem
+import com.slem.gazastor.ui.model.ItemUi
+import com.slem.gazastor.ui.screens.cart.CartViewModel
+import com.slem.gazastor.ui.screens.cart.quickCartActions
 import com.slem.gazastor.ui.theme.Dimens
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,10 +41,13 @@ import com.slem.gazastor.ui.theme.Dimens
 fun ListScreen(
     categoryId: String,
     viewModel: ListViewModel = viewModel(),
+    cartViewModel: CartViewModel = viewModel(),
     onItemClick: (String) -> Unit,
     onBackClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val favoriteIds by viewModel.favoriteIds.collectAsState()
+    val cartState by cartViewModel.uiState.collectAsState()
 
     LaunchedEffect(categoryId) {
         viewModel.loadItems(categoryId)
@@ -48,9 +55,12 @@ fun ListScreen(
 
     ListContent(
         uiState = uiState,
+        favoriteIds = favoriteIds,
         onItemClick = onItemClick,
+        onFavoriteClick = viewModel::toggleFavorite,
         onBackClick = onBackClick,
-        onRetry = viewModel::retry
+        onRetry = viewModel::retry,
+        quickCart = cartViewModel.quickCartActions(cartState)
     )
 }
 
@@ -61,7 +71,10 @@ internal fun ListContent(
     uiState: ListUiState,
     onItemClick: (String) -> Unit,
     onBackClick: () -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    favoriteIds: Set<String> = emptySet(),
+    onFavoriteClick: (ItemUi) -> Unit = {},
+    quickCart: QuickCartActions = QuickCartActions()
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -95,12 +108,14 @@ internal fun ListContent(
             horizontalArrangement = Arrangement.spacedBy(Dimens.GridSpacing),
             verticalArrangement = Arrangement.spacedBy(Dimens.GridSpacing)
         ) {
-            if (uiState.isLoading) {
-                fullWidthItem(key = "loading") { LoadingIndicator() }
-            }
-
             if (uiState.isError) {
                 fullWidthItem(key = "error") { ErrorState(onRetry = onRetry) }
+            }
+
+            if (uiState.items.isEmpty() && (uiState.isLoading || uiState.isError)) {
+                repeat(4) { index ->
+                    item(key = "skeleton-$index") { SkeletonCard(pulse = !uiState.isError) }
+                }
             }
 
             if (uiState.isEmpty) {
@@ -108,7 +123,16 @@ internal fun ListContent(
             }
 
             items(uiState.items, key = { it.id }) { item ->
-                ItemGridCard(item, onClick = { onItemClick(item.id) })
+                ItemGridCard(
+                    item = item,
+                    onClick = { onItemClick(item.id) },
+                    isFavorite = item.id in favoriteIds,
+                    onFavoriteClick = { onFavoriteClick(item) },
+                    quantity = quickCart.quantities[item.id] ?: 0,
+                    onAdd = { quickCart.onAdd(item) },
+                    onIncrease = { quickCart.onIncrease(item.id) },
+                    onDecrease = { quickCart.onDecrease(item.id) }
+                )
             }
         }
     }

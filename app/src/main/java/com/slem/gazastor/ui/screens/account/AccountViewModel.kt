@@ -53,13 +53,20 @@ class AccountViewModel(
     }
 
     private suspend fun loadProfile() {
-        authRepository.profile().onSuccess { profile ->
-            _uiState.update {
-                it.copy(
-                    displayName = profile?.full_name?.takeIf { name -> name.isNotBlank() },
-                    role = profile?.role
-                )
+        authRepository.profile()
+            .onSuccess { profile ->
+                _uiState.update {
+                    it.copy(
+                        displayName = profile?.full_name?.takeIf { name -> name.isNotBlank() },
+                        role = profile?.role
+                    )
+                }
             }
-        }
+            .onFailure {
+                // Don't crash on profile load failure; keep basic info we have
+                _uiState.update {
+                    it.copy(displayName = null, role = null)
+                }
+            }
     }
 }

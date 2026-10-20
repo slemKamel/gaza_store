@@ -4,6 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.dp
@@ -65,6 +66,48 @@ val BrandMark: ImageVector = ImageVector.Builder(
         pathData = pathNodes("M266,259 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"),
         fill = SolidColor(Color(0xFFF7F2E8))
     )
+}.build()
+
+/**
+ * Lighter sibling of [BrandMark] for small placements such as the compact
+ * brand bar: a thin ring around the same bag glyph, in one flat color. It
+ * carries no meaningful color of its own — tint it at the call site (e.g. with
+ * `MaterialTheme.colorScheme.secondary`) so the copper comes from the theme.
+ */
+val BrandMarkOutlined: ImageVector = ImageVector.Builder(
+    name = "BrandMarkOutlined",
+    defaultWidth = 108.dp,
+    defaultHeight = 108.dp,
+    viewportWidth = 500f,
+    viewportHeight = 500f
+).apply {
+    // Thin outer ring (stroke only — keeps the mark lightweight at small sizes).
+    addPath(
+        pathData = pathNodes("M25,250 A225,225 0 1 1 475,250 A225,225 0 1 1 25,250 Z"),
+        stroke = SolidColor(Color.Black),
+        strokeLineWidth = 26f,
+        strokeLineCap = StrokeCap.Round
+    )
+    // The bag glyph is drawn at ~19% of the canvas in the full logo; inside the
+    // ring it must fill the interior instead, or it reads as a dot at bar size.
+    addGroup(scaleX = 2.05f, scaleY = 2.05f, pivotX = 250.5f, pivotY = 263f)
+    // Bag handle.
+    addPath(
+        pathData = pathNodes(
+            "M223,244 C223,214 277,214 277,244 C277,250 273,254 267,254 C261,254 259,250 " +
+                "259,244 C259,228 241,228 241,244 C241,250 239,254 233,254 C227,254 223,250 223,244 Z"
+        ),
+        fill = SolidColor(Color.Black)
+    )
+    // Bag body.
+    addPath(
+        pathData = pathNodes(
+            "M206,244 L294,244 C297,244 299,247 298,250 L293,298 C292,306 285,312 277,312 " +
+                "L223,312 C215,312 208,306 207,298 L202,250 C201,247 203,244 206,244 Z"
+        ),
+        fill = SolidColor(Color.Black)
+    )
+    clearGroup()
 }.build()
 
 /** Copper gradient shared by the disc and the bag body. */

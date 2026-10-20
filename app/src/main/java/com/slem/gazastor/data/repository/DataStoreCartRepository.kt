@@ -56,6 +56,18 @@ class DataStoreCartRepository(private val context: Context) : CartRepository {
         }
     }
 
+    override suspend fun increment(itemId: String, delta: Int) {
+        update { current ->
+            current.mapNotNull { line ->
+                when {
+                    line.itemId != itemId -> line
+                    line.quantity + delta <= 0 -> null
+                    else -> line.copy(quantity = line.quantity + delta)
+                }
+            }
+        }
+    }
+
     override suspend fun remove(itemId: String) {
         update { current -> current.filterNot { it.itemId == itemId } }
     }

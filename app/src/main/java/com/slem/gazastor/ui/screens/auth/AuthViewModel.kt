@@ -25,6 +25,7 @@ enum class AuthMode { SignIn, SignUp }
 enum class AuthError {
     InvalidEmail,
     PasswordTooShort,
+    PasswordMismatch,
     InvalidCredentials,
     EmailNotConfirmed,
     EmailAlreadyRegistered,
@@ -46,7 +47,9 @@ data class AuthUiState(
     val mode: AuthMode = AuthMode.SignIn,
     val email: String = "",
     val password: String = "",
+    val confirmPassword: String = "",
     val isPasswordVisible: Boolean = false,
+    val isConfirmPasswordVisible: Boolean = false,
     val isSubmitting: Boolean = false,
     val error: AuthError? = null,
     val info: AuthInfo? = null
@@ -76,8 +79,14 @@ class AuthViewModel(
     fun onPasswordChange(value: String) =
         _uiState.update { it.copy(password = value, error = null, info = null) }
 
+    fun onConfirmPasswordChange(value: String) =
+        _uiState.update { it.copy(confirmPassword = value, error = null, info = null) }
+
     fun onTogglePasswordVisibility() =
         _uiState.update { it.copy(isPasswordVisible = !it.isPasswordVisible) }
+
+    fun onToggleConfirmPasswordVisibility() =
+        _uiState.update { it.copy(isConfirmPasswordVisible = !it.isConfirmPasswordVisible) }
 
     fun onModeChange(mode: AuthMode) =
         _uiState.update { it.copy(mode = mode, error = null, info = null) }
@@ -131,7 +140,7 @@ class AuthViewModel(
 
     private suspend fun completeAuthentication() {
         authPreferences.setAuthPromptSeen()
-        _uiState.update { it.copy(isSubmitting = false, password = "") }
+        _uiState.update { it.copy(isSubmitting = false, password = "", confirmPassword = "") }
         _events.send(AuthEvent.Authenticated)
     }
 
@@ -142,6 +151,8 @@ class AuthViewModel(
     private fun validate(state: AuthUiState): AuthError? = when {
         !EMAIL_PATTERN.matches(state.email.trim()) -> AuthError.InvalidEmail
         state.password.length < MIN_PASSWORD_LENGTH -> AuthError.PasswordTooShort
+        state.mode == AuthMode.SignUp && state.confirmPassword != state.password ->
+            AuthError.PasswordMismatch
         else -> null
     }
 

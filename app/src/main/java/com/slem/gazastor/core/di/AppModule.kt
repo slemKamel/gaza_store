@@ -9,6 +9,8 @@ import com.slem.gazastor.data.repository.CartRepository
 import com.slem.gazastor.data.repository.ContentRepository
 import com.slem.gazastor.data.repository.ContentRepositoryImpl
 import com.slem.gazastor.data.repository.DataStoreCartRepository
+import com.slem.gazastor.data.repository.DataStoreFavoritesRepository
+import com.slem.gazastor.data.repository.FavoritesRepository
 import com.slem.gazastor.data.repository.OrderRepository
 import com.slem.gazastor.data.repository.OrderRepositoryImpl
 import io.github.jan.supabase.SupabaseClient
@@ -37,6 +39,8 @@ object AppModule {
     val authRepository: AuthRepository by lazy { AuthRepositoryImpl(supabaseClient) }
 
     val cartRepository: CartRepository by lazy { DataStoreCartRepository(applicationContext) }
+
+    val favoritesRepository: FavoritesRepository by lazy { DataStoreFavoritesRepository(applicationContext) }
 
     val orderRepository: OrderRepository by lazy { OrderRepositoryImpl(supabaseClient) }
 

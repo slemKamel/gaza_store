@@ -4,12 +4,15 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from "./env";
 
 /**
  * Refreshes the Supabase auth cookies during a request and resolves the current
- * user. `getUser()` (rather than `getSession()`) validates the token with the
- * Supabase Auth server, so its result is safe to base a redirect on.
+ * user from the session cookie. `getSession()` decodes the cookie locally with
+ * no network round trip, which keeps navigations fast; it refreshes expired
+ * tokens automatically when a refresh token is present.
  *
- * The role check ("is this user an admin?") deliberately does NOT happen here:
- * Proxy is only an optimistic gate. The authoritative check lives in the admin
- * layout and, above all, in Row Level Security.
+ * This is deliberately only an OPTIMISTIC gate: it decides whether to bounce
+ * to /login, nothing security-critical. The authoritative checks are the
+ * admin layout's `requireAdmin()` (which validates the user with the Auth
+ * server), every server action's `assertAdmin()`, and Row Level Security —
+ * a forged or revoked cookie still fails all three.
  */
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -32,8 +35,8 @@ export async function updateSession(request: NextRequest) {
   });
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  return { response, user };
+  return { response, user: session?.user ?? null };
 }

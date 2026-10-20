@@ -34,6 +34,16 @@ class FakeCartRepository(initial: List<CartLine> = emptyList()) : CartRepository
         }
     }
 
+    override suspend fun increment(itemId: String, delta: Int) {
+        state.value = state.value.mapNotNull { line ->
+            when {
+                line.itemId != itemId -> line
+                line.quantity + delta <= 0 -> null
+                else -> line.copy(quantity = line.quantity + delta)
+            }
+        }
+    }
+
     override suspend fun remove(itemId: String) {
         state.value = state.value.filterNot { it.itemId == itemId }
     }

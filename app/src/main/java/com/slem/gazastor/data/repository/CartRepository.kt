@@ -19,6 +19,13 @@ interface CartRepository {
     /** Sets the absolute quantity of a line; removes it when [quantity] <= 0. */
     suspend fun setQuantity(itemId: String, quantity: Int)
 
+    /**
+     * Atomically adds [delta] to an existing line and removes it when the result
+     * is <= 0. Unknown ids are ignored. Atomic so rapid taps from the compact
+     * stepper cannot lose an increment.
+     */
+    suspend fun increment(itemId: String, delta: Int)
+
     suspend fun remove(itemId: String)
 
     suspend fun clear()

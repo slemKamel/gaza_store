@@ -34,7 +34,9 @@ object SampleData {
         title: String,
         description: String,
         price: String,
-        priceValue: Double
+        priceValue: Double,
+        iconKey: String = "",
+        imageUrl: String = PREVIEW_IMAGE
     ) = ItemUi(
         id = id,
         categoryId = categoryId,
@@ -43,26 +45,62 @@ object SampleData {
         // `price` is the bare formatted number; PriceText adds "السعر: … ₪".
         price = price,
         priceValue = priceValue,
-        imageUrl = PREVIEW_IMAGE,
-        images = listOf(PREVIEW_IMAGE, PREVIEW_IMAGE, PREVIEW_IMAGE)
+        imageUrl = imageUrl,
+        images = if (imageUrl.isBlank()) emptyList() else listOf(imageUrl, imageUrl, imageUrl),
+        iconKey = iconKey
     )
 
+    // "عطور" carries an icon key (glyph chip) and its product ships without a
+    // photo, so the previews show both the photo and the glyph fallback the real
+    // catalog now relies on (see the "Product images" note in AGENTS.md).
     val categories = listOf(
         CategoryUi("c1", "ساعات", "watches", PREVIEW_IMAGE),
         CategoryUi("c2", "حقائب", "bags", PREVIEW_IMAGE),
-        CategoryUi("c3", "عطور", "perfumes", PREVIEW_IMAGE),
+        CategoryUi("c3", "عطور", "perfumes", PREVIEW_IMAGE, "personal_care"),
         CategoryUi("c4", "نظارات", "glasses", PREVIEW_IMAGE)
     )
 
+    // One banner per drawn style (green / beige / copper), mirroring the live rows.
     val banners = listOf(
-        BannerUi("b1", "تشكيلة الصيف", PREVIEW_IMAGE, ""),
-        BannerUi("b2", "وصل حديثاً", PREVIEW_IMAGE, "")
+        BannerUi(
+            id = "b1",
+            title = "تشكيلة الصيف",
+            imageUrl = PREVIEW_IMAGE,
+            link = "",
+            style = "green",
+            subtitle = "أسعار مخفضة على تشكيلة مختارة",
+            badge = "جديد",
+            iconKey = "fresh"
+        ),
+        BannerUi(
+            id = "b2",
+            title = "وصل حديثاً",
+            imageUrl = PREVIEW_IMAGE,
+            link = "",
+            style = "beige",
+            subtitle = "اكتشف أحدث المنتجات في المتجر",
+            badge = "عرض خاص",
+            iconKey = "offer"
+        ),
+        BannerUi(
+            id = "b3",
+            title = "توصيل سريع حتى باب بيتك",
+            imageUrl = "",
+            link = "",
+            style = "copper",
+            subtitle = "خدمة توصيل موثوقة في كل وقت",
+            badge = "توصيل",
+            iconKey = "delivery"
+        )
     )
 
     val items = listOf(
         item("i1", "c1", "ساعة يد كلاسيكية", "ساعة أنيقة بحزام جلد طبيعي ومقاومة للماء.", "250", 250.0),
         item("i2", "c2", "حقيبة جلدية فاخرة", "حقيبة يد بجلد طبيعي وحواف مخيطة يدوياً.", "480", 480.0),
-        item("i3", "c3", "عطر شرقي", "عطر بثبات طويل ولمسة خشبية دافئة.", "320", 320.0),
+        item(
+            "i3", "c3", "عطر شرقي", "عطر بثبات طويل ولمسة خشبية دافئة.", "320", 320.0,
+            iconKey = "personal_care", imageUrl = ""
+        ),
         item("i4", "c4", "نظارة شمسية", "نظارة بعدسات مستقطبة وحماية كاملة من الشمس.", "150", 150.0)
     )
 

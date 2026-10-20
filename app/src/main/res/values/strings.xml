@@ -1,14 +1,8 @@
 <resources>
     <string name="app_name">Gaza Store</string>
-
-    <!-- Brand lockups: the Arabic wordmark (Amiri) and its Latin pair (Bodoni Moda) -->
     <string name="brand_wordmark">متجر غزة</string>
     <string name="brand_wordmark_latin">GAZA STORE</string>
-
-    <!-- Splash -->
     <string name="splash_tagline">تسوّق الأناقة والجودة</string>
-
-    <!-- Onboarding -->
     <string name="onboarding_skip">تخطي</string>
     <string name="onboarding_next">التالي</string>
     <string name="onboarding_start">ابدأ التسوق</string>
@@ -22,14 +16,13 @@
     <string name="onboarding_subtitle_orders">أضف ما يعجبك إلى السلة وأكمل طلبك في خطوات بسيطة.</string>
     <string name="onboarding_orders_box">صندوق مختار</string>
     <string name="onboarding_orders_pill">اكتملت الإضافة • جاهز للطلب</string>
-
-    <!-- Auth -->
     <string name="auth_welcome_title">مرحباً بك</string>
     <string name="auth_welcome_subtitle">سجّل الدخول أو أنشئ حساباً لمتابعة التسوق</string>
     <string name="auth_mode_sign_in">تسجيل الدخول</string>
     <string name="auth_mode_sign_up">إنشاء حساب</string>
     <string name="auth_email_label">البريد الإلكتروني</string>
     <string name="auth_password_label">كلمة المرور</string>
+    <string name="auth_confirm_password_label">تأكيد كلمة المرور</string>
     <string name="auth_show_password">إظهار</string>
     <string name="auth_hide_password">إخفاء</string>
     <string name="auth_action_sign_in">دخول</string>
@@ -39,34 +32,29 @@
     <string name="auth_confirmation_sent">تم إنشاء حسابك، تحقق من بريدك الإلكتروني لتأكيده.</string>
     <string name="auth_error_invalid_email">أدخل بريداً إلكترونياً صحيحاً</string>
     <string name="auth_error_password_short">كلمة المرور يجب أن تكون ٦ أحرف على الأقل</string>
+    <string name="auth_error_password_mismatch">كلمتا المرور غير متطابقتين</string>
     <string name="auth_error_invalid_credentials">البريد الإلكتروني أو كلمة المرور غير صحيحة</string>
     <string name="auth_error_email_not_confirmed">يرجى تأكيد بريدك الإلكتروني أولاً</string>
     <string name="auth_error_email_exists">هذا البريد الإلكتروني مسجّل مسبقاً</string>
     <string name="auth_error_weak_password">كلمة المرور ضعيفة جداً</string>
     <string name="auth_error_network">تعذّر الاتصال، تحقق من اتصالك بالإنترنت</string>
     <string name="auth_error_unknown">حدث خطأ غير متوقع، حاول مرة أخرى</string>
-
-    <!-- Home -->
-    <string name="home_banners">عروض</string>
     <string name="home_categories">الأقسام</string>
     <string name="home_recent_items">أحدث المنتجات</string>
-
-    <!-- Navigation -->
     <string name="tab_home">الرئيسية</string>
-    <string name="tab_search">البحث</string>
+    <string name="tab_favorites">المفضلة</string>
     <string name="tab_cart">السلة</string>
     <string name="tab_orders">طلباتي</string>
     <string name="tab_account">حسابي</string>
-
-    <!-- Search -->
     <string name="title_search">البحث</string>
     <string name="search_hint">ابحث عن منتج…</string>
     <string name="search_prompt">اكتب اسم المنتج للبحث عنه</string>
     <string name="search_no_results">لا توجد نتائج مطابقة</string>
+    <string name="favorites_empty">لا توجد منتجات في المفضلة بعد</string>
     <string name="search_results_title">نتائج البحث</string>
     <string name="action_clear">مسح</string>
-
-    <!-- Cart -->
+    <string name="action_add_favorite">أضف إلى المفضلة</string>
+    <string name="action_remove_favorite">إزالة من المفضلة</string>
     <string name="title_cart">سلة التسوق</string>
     <string name="cart_empty">سلة التسوق فارغة</string>
     <string name="cart_quantity">الكمية</string>
@@ -81,8 +69,7 @@
     <string name="cart_add_to_cart">أضف إلى السلة</string>
     <string name="cart_added">تمت الإضافة إلى السلة</string>
     <string name="cart_sign_in_to_checkout">سجّل الدخول لإتمام الطلب</string>
-
-    <!-- Checkout -->
+    <string name="cart_badge_overflow">9+</string>
     <string name="title_checkout">إتمام الطلب</string>
     <string name="checkout_delivery_details">بيانات التوصيل</string>
     <string name="checkout_name">الاسم الكامل</string>
@@ -98,8 +85,6 @@
     <string name="checkout_error_address">أدخل العنوان</string>
     <string name="checkout_error_auth">يجب تسجيل الدخول لإتمام الطلب</string>
     <string name="checkout_error_unknown">تعذّر إرسال الطلب، حاول مرة أخرى</string>
-
-    <!-- Orders -->
     <string name="title_orders">طلباتي</string>
     <string name="orders_empty">لا توجد طلبات بعد</string>
     <string name="orders_sign_in_required">سجّل الدخول لعرض طلباتك</string>
@@ -111,14 +96,14 @@
     <string name="orders_status_delivered">تم التسليم</string>
     <string name="orders_status_cancelled">ملغي</string>
     <string name="orders_status_unknown">غير معروف</string>
-
-    <!-- Account -->
     <string name="title_account">حسابي</string>
+    <string name="account_welcome_guest">مرحباً بك في متجر غزة</string>
+    <string name="account_guest_message">سجّل الدخول أو أنشئ حساباً للوصول إلى طلباتك وإدارة حسابك</string>
+    <string name="account_sign_in_register">تسجيل الدخول / إنشاء حساب</string>
+    <string name="account_my_profile">ملفي الشخصي</string>
     <string name="account_sign_out">تسجيل الخروج</string>
     <string name="account_role_admin">مدير</string>
     <string name="account_role_customer">عميل</string>
-
-    <!-- Titles and actions -->
     <string name="title_items">المنتجات</string>
     <string name="title_detail">التفاصيل</string>
     <string name="detail_not_found">هذا المنتج غير متوفر حالياً</string>
@@ -126,12 +111,8 @@
     <string name="action_retry">إعادة المحاولة</string>
     <string name="action_browse">تصفّح المنتجات</string>
     <string name="action_sign_in">تسجيل الدخول</string>
-
-    <!-- States -->
     <string name="error_load_failed">تعذّر تحميل البيانات، تحقق من اتصالك بالإنترنت.</string>
     <string name="empty_catalog">لا توجد منتجات لعرضها حالياً</string>
-
-    <!-- Formatting -->
     <string name="price_format">السعر: %1$s ₪</string>
     <string name="currency_format">%1$s ₪</string>
 </resources>

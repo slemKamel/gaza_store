@@ -119,7 +119,9 @@ internal fun AuthFormPreview(
         onModeChange = {},
         onEmailChange = {},
         onPasswordChange = {},
+        onConfirmPasswordChange = {},
         onTogglePasswordVisibility = {},
+        onToggleConfirmPasswordVisibility = {},
         onSubmit = {},
         onGuest = {},
         showHeader = showHeader
@@ -136,7 +138,8 @@ internal fun HomePreview() {
             uiState = SampleData.home,
             onCategoryClick = {},
             onItemClick = {},
-            onRetry = {}
+            onRetry = {},
+            animateEntrance = false
         )
     }
 }
@@ -149,7 +152,8 @@ internal fun HomeLoadingPreview() {
             uiState = SampleData.loadingHome,
             onCategoryClick = {},
             onItemClick = {},
-            onRetry = {}
+            onRetry = {},
+            animateEntrance = false
         )
     }
 }
@@ -162,7 +166,8 @@ internal fun HomeEmptyPreview() {
             uiState = SampleData.emptyHome,
             onCategoryClick = {},
             onItemClick = {},
-            onRetry = {}
+            onRetry = {},
+            animateEntrance = false
         )
     }
 }
@@ -175,7 +180,8 @@ internal fun HomeErrorPreview() {
             uiState = SampleData.errorHome,
             onCategoryClick = {},
             onItemClick = {},
-            onRetry = {}
+            onRetry = {},
+            animateEntrance = false
         )
     }
 }

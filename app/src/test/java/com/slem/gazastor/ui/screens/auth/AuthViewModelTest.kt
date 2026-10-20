@@ -98,12 +98,43 @@ class AuthViewModelTest {
         viewModel.onModeChange(AuthMode.SignUp)
         viewModel.onEmailChange("new@example.com")
         viewModel.onPasswordChange("secret1")
+        viewModel.onConfirmPasswordChange("secret1")
 
         viewModel.submit()
         advanceUntilIdle()
 
         assertEquals(AuthInfo.ConfirmationEmailSent, viewModel.uiState.value.info)
         assertNull(viewModel.uiState.value.error)
+    }
+
+    @Test
+    fun signUp_withMismatchedConfirmPassword_showsValidationErrorWithoutCallingRepository() = runTest {
+        val viewModel = viewModel()
+        viewModel.onModeChange(AuthMode.SignUp)
+        viewModel.onEmailChange("new@example.com")
+        viewModel.onPasswordChange("secret1")
+        viewModel.onConfirmPasswordChange("secret2")
+
+        viewModel.submit()
+        advanceUntilIdle()
+
+        assertEquals(AuthError.PasswordMismatch, viewModel.uiState.value.error)
+        assertEquals(0, repository.signUpCalls)
+    }
+
+    @Test
+    fun signIn_withUnmatchedConfirmPassword_stillSucceeds() = runTest {
+        // Confirm password is a sign-up-only concept; sign-in must ignore it.
+        val viewModel = viewModel()
+        viewModel.onEmailChange("user@example.com")
+        viewModel.onPasswordChange("secret1")
+        viewModel.onConfirmPasswordChange("different")
+
+        viewModel.submit()
+        advanceUntilIdle()
+
+        assertNull(viewModel.uiState.value.error)
+        assertEquals(1, repository.signInCalls)
     }
 
     @Test

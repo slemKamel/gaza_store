@@ -7,6 +7,7 @@ import com.slem.gazastor.core.di.AppModule
 import com.slem.gazastor.data.model.CartLine
 import com.slem.gazastor.data.repository.AuthRepository
 import com.slem.gazastor.data.repository.CartRepository
+import com.slem.gazastor.ui.components.QuickCartActions
 import com.slem.gazastor.ui.model.ItemUi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +21,9 @@ data class CartLineUi(
     val imageUrl: String,
     val unitPrice: Double,
     val quantity: Int,
-    val lineTotal: Double
+    val lineTotal: Double,
+    /** Category glyph key for the row's image fallback; blank hides it. */
+    val iconKey: String = ""
 )
 
 data class CartUiState(
@@ -74,20 +77,19 @@ class CartViewModel(
                     title = item.title,
                     unitPrice = unitPrice,
                     imageUrl = item.imageUrl,
-                    quantity = quantity
+                    quantity = quantity,
+                    iconKey = item.iconKey
                 )
             )
         }
     }
 
     fun increase(itemId: String) {
-        val line = uiState.value.lines.firstOrNull { it.itemId == itemId } ?: return
-        viewModelScope.launch { cartRepository.setQuantity(itemId, line.quantity + 1) }
+        viewModelScope.launch { cartRepository.increment(itemId, 1) }
     }
 
     fun decrease(itemId: String) {
-        val line = uiState.value.lines.firstOrNull { it.itemId == itemId } ?: return
-        viewModelScope.launch { cartRepository.setQuantity(itemId, line.quantity - 1) }
+        viewModelScope.launch { cartRepository.increment(itemId, -1) }
     }
 
     fun remove(itemId: String) {
@@ -103,11 +105,24 @@ class CartViewModel(
     }
 }
 
+/**
+ * Card-ready view of [state] for the catalog grids. Screens collect [uiState]
+ * and hand the snapshot in, so recomposition follows cart changes without the
+ * shared card component depending on this ViewModel.
+ */
+fun CartViewModel.quickCartActions(state: CartUiState): QuickCartActions = QuickCartActions(
+    quantities = state.lines.associate { it.itemId to it.quantity },
+    onAdd = { addItem(it) },
+    onIncrease = ::increase,
+    onDecrease = ::decrease
+)
+
 private fun CartLine.toUi() = CartLineUi(
     itemId = itemId,
     title = title,
     imageUrl = imageUrl,
     unitPrice = unitPrice,
     quantity = quantity,
-    lineTotal = lineTotal
+    lineTotal = lineTotal,
+    iconKey = iconKey
 )

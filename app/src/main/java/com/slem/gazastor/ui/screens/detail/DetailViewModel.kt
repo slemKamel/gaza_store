@@ -27,8 +27,9 @@ class DetailViewModel(private val repository: ContentRepository = AppModule.cont
         this.itemId = itemId
         viewModelScope.launch {
             _uiState.value = DetailUiState(isLoading = true)
-            val result = repository.getItems()
-            val item = result.getOrNull()?.firstOrNull { it.id == itemId }?.toUi()
+            // Fetch just this row by id instead of downloading the whole catalog.
+            val result = repository.getItem(itemId)
+            val item = result.getOrNull()?.toUi()
             _uiState.value = DetailUiState(
                 isLoading = false,
                 item = item,

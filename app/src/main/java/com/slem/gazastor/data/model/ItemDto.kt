@@ -12,5 +12,12 @@ data class ItemDto(
     val image_url: String? = null,
     val images: List<String>? = null,
     val created_at: String? = null,
-    val updated_at: String? = null
+    val updated_at: String? = null,
+    /**
+     * The embedded category. PostgREST returns a single object here (not a list)
+     * because `items.category_id` points at `categories.id`, and only the
+     * `icon_key` column is selected - enough for the image fallback glyph.
+     * Null when the query did not ask for the relation.
+     */
+    val categories: CategoryDto? = null
 )

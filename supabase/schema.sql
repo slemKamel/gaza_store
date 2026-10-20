@@ -27,6 +27,11 @@ create table public.categories (
   name text not null,
   slug text not null unique,
   image_url text,
+  -- Optional chip glyph key drawn by the app (see ui/components/CategoryIcons.kt):
+  -- drinks | food | cleaning | fruits_vegetables | dairy | bakery | snacks |
+  -- frozen | personal_care | home | baby | pets. Unknown/blank falls back to a
+  -- generic glyph, so the column is free text on purpose.
+  icon_key text,
   sort_order integer not null default 0,
   is_active boolean not null default true,
   created_at timestamptz not null default now()
@@ -58,7 +63,13 @@ create table public.banners (
   link text,
   sort_order integer not null default 0,
   is_active boolean not null default true,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  -- Compose-drawn banner fields (see the "Banners" note in AGENTS.md).
+  -- Unknown/blank style falls back to green, unknown icon_key to the generic glyph.
+  style text,
+  icon_key text,
+  badge text,
+  subtitle text
 );
 
 -- ---------- profiles (1:1 with auth.users) ----------
