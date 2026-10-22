@@ -13,8 +13,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -35,17 +33,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.slem.gazastor.R
+import com.slem.gazastor.ui.components.AppButton
 import com.slem.gazastor.ui.components.AppTextField
+import com.slem.gazastor.ui.components.CheckoutStepIndicator
 import com.slem.gazastor.ui.components.EmptyState
-import com.slem.gazastor.ui.components.PillBadge
 import com.slem.gazastor.ui.components.SectionTitle
 import com.slem.gazastor.ui.components.SummaryRow
 import com.slem.gazastor.ui.theme.Dimens
+
+/** The step of the checkout flow the address form sits on. */
+private const val AddressStep = 1
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CheckoutScreen(
     onBackClick: () -> Unit,
+    onContinueToPayment: () -> Unit,
     onOrderPlaced: () -> Unit,
     viewModel: CheckoutViewModel = viewModel()
 ) {
@@ -54,7 +57,7 @@ fun CheckoutScreen(
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                CheckoutEvent.OrderPlaced -> onOrderPlaced()
+                is CheckoutEvent.OrderPlaced -> onOrderPlaced()
             }
         }
     }
@@ -66,11 +69,11 @@ fun CheckoutScreen(
         onPhoneChange = viewModel::onPhoneChange,
         onAddressChange = viewModel::onAddressChange,
         onNotesChange = viewModel::onNotesChange,
-        onSubmit = viewModel::submit
+        onContinueToPayment = onContinueToPayment
     )
 }
 
-/** Stateless checkout form: delivery details, COD and the order summary. */
+/** Stateless checkout form: the delivery details and the order summary. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CheckoutContent(
@@ -80,27 +83,30 @@ internal fun CheckoutContent(
     onPhoneChange: (String) -> Unit,
     onAddressChange: (String) -> Unit,
     onNotesChange: (String) -> Unit,
-    onSubmit: () -> Unit
+    onContinueToPayment: () -> Unit
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.title_checkout)) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.action_back)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.primary
+            Column {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.title_checkout)) },
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.action_back)
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        titleContentColor = MaterialTheme.colorScheme.primary,
+                        navigationIconContentColor = MaterialTheme.colorScheme.primary
+                    )
                 )
-            )
+                CheckoutStepIndicator(currentStep = AddressStep)
+            }
         }
     ) { paddingValues ->
         if (uiState.isCartEmpty) {
@@ -119,7 +125,7 @@ internal fun CheckoutContent(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
                 .imePadding()
-                .padding(16.dp),
+                .padding(Dimens.ScreenPadding),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             SectionTitle(stringResource(R.string.checkout_delivery_details))
@@ -165,12 +171,6 @@ internal fun CheckoutContent(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            SectionTitle(stringResource(R.string.checkout_payment_method))
-
-            PillBadge(text = stringResource(R.string.checkout_payment_cod))
-
-            Spacer(modifier = Modifier.height(8.dp))
-
             SectionTitle(stringResource(R.string.checkout_order_summary))
 
             SummaryRow(
@@ -201,31 +201,19 @@ internal fun CheckoutContent(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
-                onClick = onSubmit,
-                enabled = !uiState.isSubmitting,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(Dimens.ButtonHeight)
-            ) {
-                if (uiState.isSubmitting) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.height(22.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                } else {
-                    Text(
-                        text = stringResource(R.string.checkout_confirm),
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                }
-            }
+            AppButton(
+                text = stringResource(R.string.checkout_continue_to_payment),
+                onClick = onContinueToPayment,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = uiState.hasDeliveryDetails && !uiState.isCartEmpty
+            )
         }
     }
 }
 
+/** Human-readable Arabic message for the checkout error. */
 @Composable
-private fun CheckoutError.message(): String = stringResource(
+internal fun CheckoutError.message(): String = stringResource(
     when (this) {
         CheckoutError.NameRequired -> R.string.checkout_error_name
         CheckoutError.PhoneRequired -> R.string.checkout_error_phone

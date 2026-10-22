@@ -20,6 +20,7 @@ import com.slem.gazastor.ui.screens.home.HomeContent
 import com.slem.gazastor.ui.screens.list.ListContent
 import com.slem.gazastor.ui.screens.onboarding.OnboardingContent
 import com.slem.gazastor.ui.screens.orders.OrdersContent
+import com.slem.gazastor.ui.screens.payment.PaymentContent
 import com.slem.gazastor.ui.screens.search.SearchContent
 import com.slem.gazastor.ui.screens.splash.SplashContent
 import com.slem.gazastor.ui.theme.GazaStorTheme
@@ -419,7 +420,7 @@ internal fun CheckoutPreview() {
             onPhoneChange = {},
             onAddressChange = {},
             onNotesChange = {},
-            onSubmit = {}
+            onContinueToPayment = {}
         )
     }
 }
@@ -435,7 +436,7 @@ internal fun CheckoutErrorPreview() {
             onPhoneChange = {},
             onAddressChange = {},
             onNotesChange = {},
-            onSubmit = {}
+            onContinueToPayment = {}
         )
     }
 }
@@ -451,7 +452,72 @@ internal fun CheckoutEmptyPreview() {
             onPhoneChange = {},
             onAddressChange = {},
             onNotesChange = {},
-            onSubmit = {}
+            onContinueToPayment = {}
+        )
+    }
+}
+
+// --- Payment ---------------------------------------------------------------
+
+@Preview(name = "Payment - Cash", locale = "ar", showSystemUi = true, widthDp = 393, heightDp = 851)
+@Composable
+internal fun PaymentCashPreview() {
+    AppPreview {
+        PaymentContent(
+            checkoutState = SampleData.checkout,
+            paymentState = SampleData.payment,
+            onBackClick = {},
+            onConfirm = {},
+            onMethodChange = {},
+            onCardNumberChange = {},
+            onCardExpiryChange = {},
+            onCardCvvChange = {},
+            onCardHolderChange = {},
+            onWalletChange = {},
+            onWalletPhoneChange = {},
+            onFieldBlurred = {}
+        )
+    }
+}
+
+@Preview(name = "Payment - Card", locale = "ar", showSystemUi = true, widthDp = 393, heightDp = 851)
+@Composable
+internal fun PaymentCardPreview() {
+    AppPreview {
+        PaymentContent(
+            checkoutState = SampleData.checkout,
+            paymentState = SampleData.paymentCard,
+            onBackClick = {},
+            onConfirm = {},
+            onMethodChange = {},
+            onCardNumberChange = {},
+            onCardExpiryChange = {},
+            onCardCvvChange = {},
+            onCardHolderChange = {},
+            onWalletChange = {},
+            onWalletPhoneChange = {},
+            onFieldBlurred = {}
+        )
+    }
+}
+
+@Preview(name = "Payment - Wallet", locale = "ar", showSystemUi = true, widthDp = 393, heightDp = 851)
+@Composable
+internal fun PaymentWalletPreview() {
+    AppPreview {
+        PaymentContent(
+            checkoutState = SampleData.checkout,
+            paymentState = SampleData.paymentWallet,
+            onBackClick = {},
+            onConfirm = {},
+            onMethodChange = {},
+            onCardNumberChange = {},
+            onCardExpiryChange = {},
+            onCardCvvChange = {},
+            onCardHolderChange = {},
+            onWalletChange = {},
+            onWalletPhoneChange = {},
+            onFieldBlurred = {}
         )
     }
 }

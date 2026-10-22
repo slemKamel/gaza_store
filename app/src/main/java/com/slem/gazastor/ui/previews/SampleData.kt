@@ -18,6 +18,9 @@ import com.slem.gazastor.ui.screens.list.ListUiState
 import com.slem.gazastor.ui.screens.orders.OrderLineUi
 import com.slem.gazastor.ui.screens.orders.OrderUi
 import com.slem.gazastor.ui.screens.orders.OrdersUiState
+import com.slem.gazastor.ui.screens.payment.PaymentMethod
+import com.slem.gazastor.ui.screens.payment.PaymentUiState
+import com.slem.gazastor.ui.screens.payment.WalletProvider
 import com.slem.gazastor.ui.screens.search.SearchUiState
 
 /**
@@ -178,6 +181,22 @@ object SampleData {
     )
 
     val orders = OrdersUiState(isSignedIn = true, orders = orderList)
+
+    val payment = PaymentUiState()
+
+    val paymentCard = PaymentUiState(
+        method = PaymentMethod.Card,
+        cardNumber = "4111111111111111",
+        cardExpiry = "1229",
+        cardCvv = "123",
+        cardHolder = "أحمد محمود"
+    )
+
+    val paymentWallet = PaymentUiState(
+        method = PaymentMethod.Wallet,
+        wallet = WalletProvider.JawwalPay,
+        walletPhone = "0599000000"
+    )
 
     val account = AccountUiState(
         isSignedIn = true,

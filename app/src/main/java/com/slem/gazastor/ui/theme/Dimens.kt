@@ -122,6 +122,65 @@ object Dimens {
      */
     val DetailImageHeight = 260.dp
 
+    // --- Payment ---------------------------------------------------------------
+
+    /** Minimum height of a payment-method radio card. */
+    val PaymentMethodCardMinHeight = 64.dp
+
+    /** Inner padding of a payment-method radio card. */
+    val PaymentMethodCardPadding = 16.dp
+
+    /** Border width of the selected payment-method card. */
+    val PaymentMethodSelectedBorder = 1.5.dp
+
+    /** Diameter of the beige disc holding the payment-method glyph. */
+    val PaymentMethodIconDiscSize = 40.dp
+
+    /** Size of the payment-method glyph inside its disc. */
+    val PaymentMethodIconSize = 20.dp
+
+    /** Diameter of the radio dot on a payment-method card. */
+    val PaymentRadioDotSize = 18.dp
+
+    /** Diameter of the filled copper core of the selected radio dot. */
+    val PaymentRadioDotInnerSize = 8.dp
+
+    /** Thickness of the radio-dot ring. */
+    val PaymentRadioDotBorder = 1.5.dp
+
+    /** Diameter of a step dot in the checkout step indicator. */
+    val PaymentStepDotSize = 8.dp
+
+    /** Diameter of the current step dot in the checkout step indicator. */
+    val PaymentStepCurrentDotSize = 10.dp
+
+    /** Thickness of the connector line between two step dots. */
+    val PaymentStepConnectorHeight = 2.dp
+
+    /** Vertical padding around the checkout step indicator. */
+    val PaymentStepIndicatorPadding = 12.dp
+
+    /** Height of a selectable wallet chip (the 48dp minimum touch target). */
+    val PaymentChipHeight = 48.dp
+
+    /** Horizontal padding inside a selectable wallet chip. */
+    val PaymentChipHPadding = 14.dp
+
+    /** Inner padding of the bank-transfer details block. */
+    val PaymentBankDetailsPadding = 12.dp
+
+    /** Padding inside the sticky payment bottom bar. */
+    val PaymentBottomBarPadding = 16.dp
+
+    /** Size of the lock glyph next to the "secure payment" line. */
+    val PaymentSecureIconSize = 16.dp
+
+    /** Height of the VISA / Mastercard brand badge. */
+    val PaymentBrandBadgeHeight = 22.dp
+
+    /** Vertical gap between two payment form fields. */
+    val PaymentFieldGap = 10.dp
+
     // --- Section title --------------------------------------------------------
 
     /** Copper accent rule drawn above a [com.slem.gazastor.ui.components.SectionTitle]. */

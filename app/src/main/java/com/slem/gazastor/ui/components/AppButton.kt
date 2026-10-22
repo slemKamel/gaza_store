@@ -19,6 +19,10 @@ import com.slem.gazastor.ui.theme.Dimens
  * The app's single button primitive so every CTA shares one height, shape and
  * label style (auth, onboarding, detail, cart, checkout, account). The outlined
  * variant is the secondary voice (e.g. "متابعة كزائر", sign out).
+ *
+ * [trailingContent] adds a slot after the label, so a screen can mix scripts
+ * inside one button - the Arabic label stays in the Arabic face while a price
+ * is set in Inter.
  */
 @Composable
 fun AppButton(
@@ -28,7 +32,8 @@ fun AppButton(
     enabled: Boolean = true,
     loading: Boolean = false,
     outlined: Boolean = false,
-    leadingIcon: @Composable (() -> Unit)? = null
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null
 ) {
     val content: @Composable RowScope.() -> Unit = {
         if (loading) {
@@ -48,6 +53,7 @@ fun AppButton(
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold
             )
+            trailingContent?.invoke()
         }
     }
 

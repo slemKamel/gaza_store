@@ -4,7 +4,7 @@ Gaza Store is an Android mobile application built with Jetpack Compose. It is **
 
 Navigation is a single navigation graph: a splash, then a **3-page onboarding** flow on first launch, then a **sign in / sign up screen** (skippable via "متابعة كزائر"), then a **5-tab bottom bar** (Home, Search, Cart, Orders, Account) with detail routes pushed on top (`list/{categoryId}`, `detail/{itemId}`). The bottom bar is only shown on its own destinations. Onboarding and the sign-in prompt are each remembered locally (DataStore), so returning users land straight on Home; guests get the full catalog without an account. Home, category lists and search results are **two-column product grids**.
 
-Shopping is a three-step flow: **Cart** (local, works for guests too) → **Checkout** (sign-in required) → **Orders** (order history). Details screens let you pick a quantity and add to the cart; the cart keeps quantities per item and shows a subtotal, a flat delivery fee and a total.
+Shopping is a three-step flow: **Cart** (local, works for guests too) → **Checkout** (sign-in required: delivery details) → **Payment** (pick how to pay) → **Orders** (order history). Details screens let you pick a quantity and add to the cart; the cart keeps quantities per item and shows a subtotal, a flat delivery fee and a total.
 
 Content is loaded from Supabase through a repository layer using MVVM (manual DI in `core/di`).
 
@@ -58,7 +58,7 @@ An **admin dashboard website** lives in [`web/`](./web) (Next.js 16 + TypeScript
   - `MainActivity.kt`, `GazaStorApp.kt` - Entry points
   - `core/` - Constants (incl. `DELIVERY_FEE`), manual DI, navigation graph
   - `data/` - DTOs, DTO mappers, Supabase client, local DataStore (preferences + cart), repositories (`ContentRepository`, `AuthRepository`, `CartRepository`, `OrderRepository`, all return `Result`)
-  - `ui/` - UI models, screens (splash/onboarding/auth/home/list/detail/search/cart/checkout/orders/account + ViewModels), theme, shared `components/`
+  - `ui/` - UI models, screens (splash/onboarding/auth/home/list/detail/search/cart/checkout/payment/orders/account + ViewModels), theme, shared `components/`
 - `app/src/main/res/` - Android resources (incl. `font/` with the bundled OFL fonts)
 - `licenses/` - Third-party font licenses (OFL)
 - `app/src/test/` - Unit tests
@@ -130,7 +130,8 @@ Fixed light-only brand theme (dynamic color is disabled so branding is consisten
 ## Cart, checkout and orders
 
 - **Cart** (`CartRepository` / `DataStoreCartRepository`) is device-local: lines are stored as a JSON array in their own DataStore file (`gaza_stor_cart`) so guests can shop without an account and the cart survives process death. Quantities are merged per item and a line is removed when its quantity reaches zero.
-- **Checkout** (`CheckoutScreen` / `CheckoutViewModel`) requires a signed-in user (guests get a sign-in prompt). It prefills name and phone from the `profiles` row, validates the delivery details, and offers **cash on delivery** only for now.
+- **Checkout** (`CheckoutScreen` / `CheckoutViewModel`) requires a signed-in user (guests get a sign-in prompt). It prefills name and phone from the `profiles` row, validates the delivery details and hands over to the payment step.
+- **Payment** (`ui/screens/payment`) is the second step of the checkout flow (a slim three-step bar shows العنوان / الدفع / التأكيد). It offers five methods as radio cards - cash on delivery, order via WhatsApp, bank card, e-wallet and bank transfer - and the selected one expands its own form (card number grouped in blocks of four with Visa/Mastercard detection, `MM/YY` expiry, masked CVV, cardholder name; wallet chips + phone; bank details with a copy button). Inline validation messages appear in the copper accent, only after the field lost focus. The sticky bottom bar carries "تأكيد الطلب • ₪ {total}" and stays disabled until the method is complete. The **WhatsApp** method places the order through the same repository call, then opens `wa.me` with a pre-filled Arabic message (order number, delivery details, items, totals) built from the order snapshot; the number is read from `public.app_settings` (with a hardcoded fallback) and no card data is ever stored or logged. **UI only** otherwise: nothing is sent to a payment gateway, and the chosen method is *not* stored on the order yet - every order still lands with `payment_method = 'cod'` in the dashboard.
 - **Delivery fee**: a flat `Constants.DELIVERY_FEE` (10.0 ₪) is added to every non-empty cart. This is a placeholder product decision, kept in one place so it can be changed or made remote later.
 - **Placing an order** (`OrderRepository.placeOrder`) inserts one `orders` header (with `user_id` set to the current auth user so the RLS insert policy passes) and then its `order_items` lines. The local cart is cleared only after the backend accepts both. Order history (`getOrders`) selects the customer's orders newest-first with their lines embedded (`*, order_items(*)`), relying on RLS to scope rows to their owner.
 

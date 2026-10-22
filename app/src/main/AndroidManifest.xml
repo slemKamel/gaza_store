@@ -4,6 +4,16 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Required for Android 11+ package visibility when launching WhatsApp via wa.me -->
+    <queries>
+        <package android:name="com.whatsapp" />
+        <package android:name="com.whatsapp.w4b" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" android:host="wa.me" />
+        </intent>
+    </queries>
+
     <application
         android:name=".GazaStorApp"
         android:allowBackup="true"

@@ -72,6 +72,31 @@ create table public.banners (
   subtitle text
 );
 
+-- ---------- app_settings ----------
+create table public.app_settings (
+  key text primary key,
+  value text not null,
+  updated_at timestamptz not null default now()
+);
+create trigger app_settings_set_updated_at
+  before update on public.app_settings
+  for each row execute function public.set_updated_at();
+alter table public.app_settings enable row level security;
+create policy "Public can read whatsapp number"
+  on public.app_settings
+  for select
+  to anon, authenticated
+  using (key = 'whatsapp_number');
+create policy "Admins can manage app settings"
+  on public.app_settings
+  for all
+  to authenticated
+  using (public.is_admin())
+  with check (public.is_admin());
+insert into public.app_settings (key, value)
+values ('whatsapp_number', '972567982362')
+on conflict (key) do nothing;
+
 -- ---------- profiles (1:1 with auth.users) ----------
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,

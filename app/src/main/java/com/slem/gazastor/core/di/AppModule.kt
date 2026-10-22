@@ -13,6 +13,8 @@ import com.slem.gazastor.data.repository.DataStoreFavoritesRepository
 import com.slem.gazastor.data.repository.FavoritesRepository
 import com.slem.gazastor.data.repository.OrderRepository
 import com.slem.gazastor.data.repository.OrderRepositoryImpl
+import com.slem.gazastor.data.repository.SettingsRepository
+import com.slem.gazastor.data.repository.SettingsRepositoryImpl
 import io.github.jan.supabase.SupabaseClient
 
 /**
@@ -43,6 +45,8 @@ object AppModule {
     val favoritesRepository: FavoritesRepository by lazy { DataStoreFavoritesRepository(applicationContext) }
 
     val orderRepository: OrderRepository by lazy { OrderRepositoryImpl(supabaseClient) }
+
+    val settingsRepository: SettingsRepository by lazy { SettingsRepositoryImpl(supabaseClient) }
 
     val userPreferences: UserPreferences by lazy { UserPreferences(applicationContext) }
 }

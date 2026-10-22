@@ -42,12 +42,14 @@ import com.slem.gazastor.ui.screens.auth.AuthScreen
 import com.slem.gazastor.ui.screens.cart.CartScreen
 import com.slem.gazastor.ui.screens.cart.CartViewModel
 import com.slem.gazastor.ui.screens.checkout.CheckoutScreen
+import com.slem.gazastor.ui.screens.checkout.CheckoutViewModel
 import com.slem.gazastor.ui.screens.detail.DetailScreen
 import com.slem.gazastor.ui.screens.favorites.FavoritesScreen
 import com.slem.gazastor.ui.screens.home.HomeScreen
 import com.slem.gazastor.ui.screens.list.ListScreen
 import com.slem.gazastor.ui.screens.onboarding.OnboardingScreen
 import com.slem.gazastor.ui.screens.orders.OrdersScreen
+import com.slem.gazastor.ui.screens.payment.PaymentScreen
 import com.slem.gazastor.ui.screens.search.SearchScreen
 import com.slem.gazastor.ui.screens.splash.SplashScreen
 import com.slem.gazastor.ui.screens.splash.StartDestination
@@ -68,6 +70,7 @@ sealed class Screen(val route: String) {
     data object Orders : Screen("orders")
     data object Account : Screen("account")
     data object Checkout : Screen("checkout")
+    data object Payment : Screen("payment")
     data object List : Screen("list/{categoryId}") {
         fun createRoute(categoryId: String) = "list/$categoryId"
     }
@@ -277,9 +280,34 @@ fun AppNavGraph(navController: NavHostController) {
             composable(Screen.Checkout.route) {
                 CheckoutScreen(
                     onBackClick = { navController.popBackStack() },
+                    onContinueToPayment = { navController.navigate(Screen.Payment.route) },
                     onOrderPlaced = {
                         // The placed order makes the checkout form stale, so drop
                         // it instead of saving it as a restorable entry.
+                        navController.navigateToTab(
+                            Screen.Orders.route,
+                            saveCurrentState = false
+                        )
+                    }
+                )
+            }
+
+            composable(Screen.Payment.route) {
+                // The payment step continues the checkout form, so it shares the
+                // checkout view model (and its order totals) instead of keeping
+                // a second copy of the delivery details.
+                val checkoutEntry = runCatching {
+                    navController.getBackStackEntry(Screen.Checkout.route)
+                }.getOrNull()
+                val checkoutViewModel: CheckoutViewModel = if (checkoutEntry != null) {
+                    viewModel(viewModelStoreOwner = checkoutEntry)
+                } else {
+                    viewModel()
+                }
+                PaymentScreen(
+                    checkoutViewModel = checkoutViewModel,
+                    onBackClick = { navController.popBackStack() },
+                    onOrderPlaced = {
                         navController.navigateToTab(
                             Screen.Orders.route,
                             saveCurrentState = false

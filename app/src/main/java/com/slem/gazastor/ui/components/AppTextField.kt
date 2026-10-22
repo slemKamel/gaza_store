@@ -11,8 +11,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 
 /**
  * The single text-field style for the app: beige surface fill, hairline border
- * and a forest-green focus ring. Shared by auth, checkout and search so every
- * form looks the same.
+ * and a forest-green focus ring. Shared by auth, checkout, search and payment
+ * so every form looks the same.
+ *
+ * [errorText] turns the field into the "invalid" state without the usual red:
+ * the brand keeps errors in the muted copper accent, so a wrong card number
+ * never breaks the quiet palette.
  */
 @Composable
 fun AppTextField(
@@ -26,7 +30,8 @@ fun AppTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null
+    trailingIcon: @Composable (() -> Unit)? = null,
+    errorText: String? = null
 ) {
     OutlinedTextField(
         value = value,
@@ -40,6 +45,16 @@ fun AppTextField(
         visualTransformation = visualTransformation,
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
+        isError = errorText != null,
+        supportingText = errorText?.let { message ->
+            {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+        },
         shape = MaterialTheme.shapes.small,
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -50,7 +65,14 @@ fun AppTextField(
             unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
             focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
             unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            cursorColor = MaterialTheme.colorScheme.primary
+            cursorColor = MaterialTheme.colorScheme.primary,
+            // Errors stay in the copper accent rather than the red error role.
+            errorTextColor = MaterialTheme.colorScheme.onSurface,
+            errorContainerColor = MaterialTheme.colorScheme.surface,
+            errorBorderColor = MaterialTheme.colorScheme.secondary,
+            errorLabelColor = MaterialTheme.colorScheme.secondary,
+            errorSupportingTextColor = MaterialTheme.colorScheme.secondary,
+            errorCursorColor = MaterialTheme.colorScheme.secondary
         )
     )
 }

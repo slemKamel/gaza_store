@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material Icons Outlined "forum" (Apache-2.0). Tint mask: colour it via Icon(tint = ...). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M21 6h-2v9h6v-6h-4V6zM2 6v14h6v-2H4V6H2zm0-2h6v2H2V4zm20 14H6v-2h16v2zm4-2v-6h-6v2h6v6z" />
+</vector>

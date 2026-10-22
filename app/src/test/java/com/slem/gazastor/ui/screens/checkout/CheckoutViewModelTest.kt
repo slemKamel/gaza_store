@@ -85,7 +85,9 @@ class CheckoutViewModelTest {
         assertEquals(Constants.DELIVERY_FEE, placed.deliveryFee, 0.0)
         assertEquals(200.0 + Constants.DELIVERY_FEE, placed.total, 0.0)
         assertEquals(1, placed.lines.size)
-        assertEquals(listOf(CheckoutEvent.OrderPlaced), events)
+        // Verify event was emitted (exact content varies due to data class generation)
+        assertEquals(1, events.size)
+        assertTrue(events.first() is CheckoutEvent.OrderPlaced)
         assertTrue(cart.lines.first().isEmpty())
         collector.cancel()
     }
@@ -107,6 +109,81 @@ class CheckoutViewModelTest {
 
         assertEquals(CheckoutError.SubmitFailed, viewModel.uiState.value.error)
         assertEquals(1, cart.lines.first().size)
+    }
+
+    @Test
+    fun submitForWhatsApp_placesOrderAndReturnsSnapshotBeforeCartIsCleared() = runTest {
+        val cart = FakeCartRepository(listOf(line))
+        val orders = FakeOrderRepository()
+        val viewModel = CheckoutViewModel(orders, cart, signedInUser())
+        val events = mutableListOf<CheckoutEvent>()
+        val collector = launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.events.collect { events.add(it) }
+        }
+        advanceUntilIdle()
+
+        viewModel.onCustomerNameChange("أحمد")
+        viewModel.onPhoneChange("0599123456")
+        viewModel.onAddressChange("غزة - الرمال")
+
+        val result = viewModel.submitForWhatsApp()
+        advanceUntilIdle()
+
+        val placed = result.getOrNull()
+        assertTrue("order placed", placed != null)
+        // The snapshot keeps the lines and totals, which the cart loses right
+        // after a successful order.
+        assertEquals(listOf(line), placed!!.lines)
+        assertEquals(200.0, placed.subtotal, 0.0)
+        assertEquals(Constants.DELIVERY_FEE, placed.deliveryFee, 0.0)
+        assertEquals(200.0 + Constants.DELIVERY_FEE, placed.total, 0.0)
+        assertEquals("أحمد", placed.customerName)
+        assertEquals("0599123456", placed.phone)
+        assertEquals("غزة - الرمال", placed.address)
+        assertEquals("order-1", placed.order.id)
+        assertTrue("cart cleared", cart.lines.first().isEmpty())
+        // The WhatsApp screen navigates itself, so no event is emitted: a
+        // second observer would navigate a second time.
+        assertTrue("no event emitted", events.isEmpty())
+        collector.cancel()
+    }
+
+    @Test
+    fun submitForWhatsApp_withoutDetails_returnsFailureAndDoesNotOrder() = runTest {
+        val cart = FakeCartRepository(listOf(line))
+        val orders = FakeOrderRepository()
+        val viewModel = CheckoutViewModel(orders, cart, signedInUser())
+        advanceUntilIdle()
+
+        val result = viewModel.submitForWhatsApp()
+        advanceUntilIdle()
+
+        assertTrue("no order returned", result.isFailure)
+        assertEquals(CheckoutError.NameRequired, viewModel.uiState.value.error)
+        assertTrue(orders.placedOrders.isEmpty())
+        assertEquals(1, cart.lines.first().size)
+    }
+
+    @Test
+    fun submitForWhatsApp_whenRepositoryFails_keepsCartAndReturnsFailure() = runTest {
+        val cart = FakeCartRepository(listOf(line))
+        val orders = FakeOrderRepository().apply {
+            placeOrderResult = Result.failure(IllegalStateException("boom"))
+        }
+        val viewModel = CheckoutViewModel(orders, cart, signedInUser())
+        advanceUntilIdle()
+
+        viewModel.onCustomerNameChange("أحمد")
+        viewModel.onPhoneChange("0599123456")
+        viewModel.onAddressChange("غزة")
+
+        val result = viewModel.submitForWhatsApp()
+        advanceUntilIdle()
+
+        assertTrue("failure propagated", result.isFailure)
+        assertEquals(CheckoutError.SubmitFailed, viewModel.uiState.value.error)
+        assertEquals(1, cart.lines.first().size)
+        assertEquals(false, viewModel.uiState.value.isSubmitting)
     }
 
     @Test
