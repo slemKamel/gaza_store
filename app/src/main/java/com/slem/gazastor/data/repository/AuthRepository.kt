@@ -32,4 +32,13 @@ interface AuthRepository {
 
     /** The current user's `profiles` row, or `null` when signed out / not found. */
     suspend fun profile(): Result<ProfileDto?>
+
+    /**
+     * Updates the signed-in user's own name and phone. [phone] is stored as SQL
+     * NULL when null/blank, so the account screen can omit the line entirely.
+     *
+     * Only these two columns are ever sent: the `profiles` update policy allows
+     * the owner's row, and the role-escalation trigger rejects any role change.
+     */
+    suspend fun updateProfile(fullName: String, phone: String?): Result<Unit>
 }

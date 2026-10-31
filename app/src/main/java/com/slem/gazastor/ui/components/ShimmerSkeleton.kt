@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.slem.gazastor.ui.theme.Dimens
 
@@ -74,6 +75,26 @@ private fun SkeletonBlock(
         modifier = modifier
             .background(color, shape)
             .graphicsLayer { alpha = if (pulse) pulsing else 1f }
+    )
+}
+
+/**
+ * A single free-standing placeholder line, for small blocks that are not part
+ * of a full skeleton layout (the account profile card's loading name).
+ */
+@Composable
+fun SkeletonLine(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+    pulse: Boolean = true
+) {
+    SkeletonBlock(
+        modifier = modifier
+            .width(width)
+            .height(height),
+        shape = MaterialTheme.shapes.extraSmall,
+        pulse = pulse
     )
 }
 

@@ -4,6 +4,7 @@ import com.slem.gazastor.ui.model.BannerUi
 import com.slem.gazastor.ui.model.CategoryUi
 import com.slem.gazastor.ui.model.ItemUi
 import com.slem.gazastor.ui.screens.account.AccountUiState
+import com.slem.gazastor.ui.screens.account.EditProfileForm
 import com.slem.gazastor.ui.screens.auth.AuthError
 import com.slem.gazastor.ui.screens.auth.AuthInfo
 import com.slem.gazastor.ui.screens.auth.AuthMode
@@ -202,7 +203,17 @@ object SampleData {
         isSignedIn = true,
         email = "admin@gazastor.ps",
         displayName = "أحمد محمود",
-        role = "admin"
+        phone = "0599123456",
+        memberSince = "2026/03",
+        role = "admin",
+        ordersCount = 3,
+        favoritesCount = 5,
+        cartCount = 2
+    )
+
+    val accountEditForm = EditProfileForm(
+        fullName = account.displayName.orEmpty(),
+        phone = account.phone.orEmpty()
     )
 
     val auth = AuthUiState(

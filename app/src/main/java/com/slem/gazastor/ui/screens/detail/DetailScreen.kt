@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,10 +35,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.slem.gazastor.R
+import com.slem.gazastor.ui.components.AppButton
 import com.slem.gazastor.ui.components.EmptyState
 import com.slem.gazastor.ui.components.ErrorState
 import com.slem.gazastor.ui.components.LoadingIndicator
@@ -67,23 +65,23 @@ fun DetailScreen(
     onBackClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val cartState by cartViewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val addedMessage = stringResource(R.string.cart_added)
-    var quantity by remember { mutableIntStateOf(1) }
+    val quantity = cartState.lines.firstOrNull { it.itemId == itemId }?.quantity ?: 0
 
     LaunchedEffect(itemId) {
         viewModel.loadItem(itemId)
-        quantity = 1
     }
 
     DetailContent(
         uiState = uiState,
         quantity = quantity,
-        onQuantityChange = { quantity = it },
-        onAddToCart = { item, selectedQuantity ->
-            cartViewModel.addItem(item, selectedQuantity)
-            quantity = 1
+        onDecrease = { cartViewModel.decrease(itemId) },
+        onIncrease = { cartViewModel.increase(itemId) },
+        onAddToCart = { item ->
+            cartViewModel.addItem(item)
             scope.launch { snackbarHostState.showSnackbar(addedMessage) }
         },
         onBackClick = onBackClick,
@@ -92,14 +90,15 @@ fun DetailScreen(
     )
 }
 
-/** Stateless product detail: gallery, price, quantity picker and add-to-cart. */
+/** Stateless product detail with the current cart quantity and atomic cart actions. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DetailContent(
     uiState: DetailUiState,
     quantity: Int,
-    onQuantityChange: (Int) -> Unit,
-    onAddToCart: (ItemUi, Int) -> Unit,
+    onDecrease: () -> Unit,
+    onIncrease: () -> Unit,
+    onAddToCart: (ItemUi) -> Unit,
     onBackClick: () -> Unit,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
@@ -246,7 +245,7 @@ internal fun DetailContent(
                     )
                 }
 
-                if (item.priceValue != null) {
+                if (item.priceValue != null && quantity > 0) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -259,22 +258,16 @@ internal fun DetailContent(
                         )
                         QuantityStepper(
                             quantity = quantity,
-                            onDecrease = { if (quantity > 1) onQuantityChange(quantity - 1) },
-                            onIncrease = { onQuantityChange(quantity + 1) }
+                            onDecrease = onDecrease,
+                            onIncrease = onIncrease
                         )
                     }
 
-                    Button(
-                        onClick = { onAddToCart(item, quantity) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(Dimens.ButtonHeight)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.cart_add_to_cart),
-                            style = MaterialTheme.typography.titleSmall
-                        )
-                    }
+                } else if (item.priceValue != null) {
+                    AppButton(
+                        text = stringResource(R.string.cart_add_to_cart),
+                        onClick = { onAddToCart(item) }
+                    )
                 }
             }
 

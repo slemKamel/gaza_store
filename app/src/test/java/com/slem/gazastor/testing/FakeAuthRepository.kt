@@ -20,10 +20,17 @@ class FakeAuthRepository(
     var signUpResult: Result<SignUpOutcome> = Result.success(SignUpOutcome.SignedIn)
     var signOutResult: Result<Unit> = Result.success(Unit)
     var profileResult: Result<ProfileDto?> = Result.success(null)
+    var updateProfileResult: Result<Unit> = Result.success(Unit)
 
     var signInCalls = 0
         private set
     var signUpCalls = 0
+        private set
+    var updateProfileCalls = 0
+        private set
+    var lastUpdatedName: String? = null
+        private set
+    var lastUpdatedPhone: String? = null
         private set
 
     override suspend fun signIn(email: String, password: String): Result<Unit> {
@@ -46,4 +53,18 @@ class FakeAuthRepository(
     }
 
     override suspend fun profile(): Result<ProfileDto?> = profileResult
+
+    override suspend fun updateProfile(fullName: String, phone: String?): Result<Unit> {
+        updateProfileCalls++
+        lastUpdatedName = fullName
+        lastUpdatedPhone = phone
+        if (updateProfileResult.isSuccess) {
+            val current = profileResult.getOrNull()
+            profileResult = Result.success(
+                current?.copy(full_name = fullName, phone = phone)
+                    ?: ProfileDto(id = "user-1", full_name = fullName, phone = phone)
+            )
+        }
+        return updateProfileResult
+    }
 }

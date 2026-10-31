@@ -1,9 +1,6 @@
 package com.slem.gazastor.ui.screens.payment
 
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.slem.gazastor.R
 import com.slem.gazastor.core.di.AppModule
-import com.slem.gazastor.data.repository.FALLBACK_WHATSAPP_NUMBER
 import com.slem.gazastor.data.repository.SettingsRepository
 import com.slem.gazastor.ui.components.AmountText
 import com.slem.gazastor.ui.components.AppButton
@@ -65,6 +61,8 @@ import com.slem.gazastor.ui.screens.checkout.CheckoutUiState
 import com.slem.gazastor.ui.screens.checkout.CheckoutViewModel
 import com.slem.gazastor.ui.screens.checkout.PlacedOrder
 import com.slem.gazastor.ui.theme.Dimens
+import com.slem.gazastor.ui.util.openWhatsApp
+import com.slem.gazastor.ui.util.resolveWhatsAppNumber
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -193,7 +191,8 @@ private suspend fun openWhatsAppChat(
     placed: PlacedOrder,
     paymentLabel: String
 ): Boolean {
-    val number = settingsRepository.getWhatsAppNumber().getOrNull() ?: FALLBACK_WHATSAPP_NUMBER
+    val number = resolveWhatsAppNumber(settingsRepository.getWhatsAppNumber().getOrNull())
+        ?: return false
     val message = WhatsAppOrderMessage.build(
         orderId = placed.order.id,
         customerName = placed.customerName,
@@ -211,15 +210,9 @@ private suspend fun openWhatsAppChat(
         total = placed.total,
         paymentLabel = paymentLabel
     )
-    val uri = Uri.parse("https://wa.me/$number?text=${Uri.encode(message)}")
-
-    return try {
-        context.startActivity(Intent(Intent.ACTION_VIEW, uri))
-        true
-    } catch (e: ActivityNotFoundException) {
-        // No WhatsApp and no browser to fall back to; the order is saved.
-        false
-    }
+    // No WhatsApp and no browser to fall back to means the order stays saved;
+    // the caller shows the fallback notice.
+    return openWhatsApp(context, number, message)
 }
 
 /** Stateless payment step: the method cards, the order summary and the CTA. */

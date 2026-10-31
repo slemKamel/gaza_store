@@ -12,10 +12,16 @@ class FakeOrderRepository : OrderRepository {
 
     val placedOrders = mutableListOf<NewOrder>()
 
+    var getOrdersCalls = 0
+        private set
+
     override suspend fun placeOrder(order: NewOrder): Result<OrderDto> {
         placedOrders += order
         return placeOrderResult
     }
 
-    override suspend fun getOrders(): Result<List<OrderDto>> = ordersResult
+    override suspend fun getOrders(): Result<List<OrderDto>> {
+        getOrdersCalls++
+        return ordersResult
+    }
 }

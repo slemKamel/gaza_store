@@ -64,6 +64,31 @@ class AuthRepositoryImpl(
             }
         }.decodeList<ProfileDto>().firstOrNull()
     }
+
+    override suspend fun updateProfile(fullName: String, phone: String?): Result<Unit> =
+        safeAuthCall {
+            val userId = supabase.auth.currentUserOrNull()?.id
+                ?: error("Cannot update the profile while signed out")
+            val normalizedPhone = phone?.trim()?.takeIf { it.isNotEmpty() }
+
+            supabase.from("profiles").update(
+                update = {
+                    set("full_name", fullName.trim())
+                    // setToNull writes a real JSON null (SQL NULL); clearing the
+                    // field must never store the literal "null" or an empty string.
+                    if (normalizedPhone == null) {
+                        setToNull("phone")
+                    } else {
+                        set("phone", normalizedPhone)
+                    }
+                }
+            ) {
+                filter {
+                    eq("id", userId)
+                }
+            }
+            Unit
+        }
 }
 
 /** Wraps a suspending auth call in [Result] without swallowing cancellation. */

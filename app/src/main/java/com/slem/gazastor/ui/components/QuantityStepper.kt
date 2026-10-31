@@ -22,8 +22,7 @@ import com.slem.gazastor.ui.theme.Dimens
 import com.slem.gazastor.ui.theme.LatinFontFamily
 
 /**
- * Small − / value / + stepper. Shared by the detail screen (choose how many to
- * add) and the cart (change a line's quantity).
+ * Small − / value / + stepper. Shared by detail and cart to change a cart line's quantity.
  *
  * The minus is a text glyph on purpose: `Icons.Filled.Remove` lives in
  * material-icons-extended, which this project deliberately does not depend on.

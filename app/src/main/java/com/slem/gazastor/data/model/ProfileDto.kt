@@ -8,5 +8,7 @@ data class ProfileDto(
     val id: String? = null,
     val full_name: String? = null,
     val phone: String? = null,
-    val role: String? = null
+    val role: String? = null,
+    /** Row creation timestamp, shown as "عضو منذ ..." on the account screen. */
+    val created_at: String? = null
 )

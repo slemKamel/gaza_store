@@ -11,6 +11,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import com.slem.gazastor.ui.components.EssentialsShowcase
+import com.slem.gazastor.ui.screens.account.AccountUiState
+import com.slem.gazastor.ui.screens.account.EditProfileContent
 import com.slem.gazastor.ui.screens.account.ProfileContent
 import com.slem.gazastor.ui.screens.auth.AuthForm
 import com.slem.gazastor.ui.screens.cart.CartContent
@@ -304,8 +306,9 @@ internal fun DetailPreview() {
         DetailContent(
             uiState = SampleData.detail,
             quantity = 1,
-            onQuantityChange = {},
-            onAddToCart = { _, _ -> },
+            onDecrease = {},
+            onIncrease = {},
+            onAddToCart = {},
             onBackClick = {},
             onRetry = {}
         )
@@ -319,8 +322,9 @@ internal fun DetailLoadingPreview() {
         DetailContent(
             uiState = SampleData.detail.copy(isLoading = true, item = null),
             quantity = 1,
-            onQuantityChange = {},
-            onAddToCart = { _, _ -> },
+            onDecrease = {},
+            onIncrease = {},
+            onAddToCart = {},
             onBackClick = {},
             onRetry = {}
         )
@@ -334,8 +338,9 @@ internal fun DetailNotFoundPreview() {
         DetailContent(
             uiState = SampleData.detail.copy(item = null),
             quantity = 1,
-            onQuantityChange = {},
-            onAddToCart = { _, _ -> },
+            onDecrease = {},
+            onIncrease = {},
+            onAddToCart = {},
             onBackClick = {},
             onRetry = {}
         )
@@ -349,8 +354,9 @@ internal fun DetailErrorPreview() {
         DetailContent(
             uiState = SampleData.detail.copy(isError = true, item = null),
             quantity = 1,
-            onQuantityChange = {},
-            onAddToCart = { _, _ -> },
+            onDecrease = {},
+            onIncrease = {},
+            onAddToCart = {},
             onBackClick = {},
             onRetry = {}
         )
@@ -577,11 +583,54 @@ internal fun OrdersErrorPreview() {
 @Preview(name = "Account - Admin", locale = "ar", showSystemUi = true, widthDp = 393, heightDp = 851)
 @Composable
 internal fun AccountAdminPreview() {
-    AppPreview { ProfileContent(uiState = SampleData.account, onSignOut = {}) }
+    AccountPreview(uiState = SampleData.account)
 }
 
 @Preview(name = "Account - Customer", locale = "ar", showSystemUi = true, widthDp = 393, heightDp = 851)
 @Composable
 internal fun AccountCustomerPreview() {
-    AppPreview { ProfileContent(uiState = SampleData.customerAccount, onSignOut = {}) }
+    AccountPreview(uiState = SampleData.customerAccount)
+}
+
+@Preview(name = "Account - Profile error", locale = "ar", showSystemUi = true, widthDp = 393, heightDp = 851)
+@Composable
+internal fun AccountErrorPreview() {
+    AccountPreview(
+        uiState = SampleData.account.copy(
+            displayName = null,
+            phone = null,
+            memberSince = "",
+            isProfileError = true
+        )
+    )
+}
+
+@Preview(name = "Account - Edit profile", locale = "ar", showSystemUi = true, widthDp = 393, heightDp = 851)
+@Composable
+internal fun AccountEditPreview() {
+    AppPreview {
+        EditProfileContent(
+            form = SampleData.accountEditForm,
+            onNameChange = {},
+            onPhoneChange = {},
+            onSave = {},
+            onCancel = {}
+        )
+    }
+}
+
+@Composable
+private fun AccountPreview(uiState: AccountUiState) {
+    AppPreview {
+        ProfileContent(
+            uiState = uiState,
+            onOrdersClick = {},
+            onFavoritesClick = {},
+            onCartClick = {},
+            onSupportClick = {},
+            onRetryProfile = {},
+            onEditProfile = {},
+            onSignOut = {}
+        )
+    }
 }

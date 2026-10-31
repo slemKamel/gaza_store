@@ -122,6 +122,35 @@ object Dimens {
      */
     val DetailImageHeight = 260.dp
 
+    // --- Account ---------------------------------------------------------------
+
+    /** Diameter of the initials avatar on the account profile card. */
+    val AccountAvatarSize = 56.dp
+
+    /** Minimum height of a tappable row in the account menu. */
+    val AccountMenuRowMinHeight = 56.dp
+
+    /** Diameter of the beige disc holding an account menu row glyph. */
+    val AccountMenuIconDiscSize = 36.dp
+
+    /** Size of the glyph inside an account menu icon disc. */
+    val AccountMenuIconSize = 20.dp
+
+    /** Minimum height of one cell in the account stats strip. */
+    val AccountStatMinHeight = 64.dp
+
+    /** Height of the vertical hairline between two stats. */
+    val AccountStatDividerHeight = 28.dp
+
+    /** Width of the placeholder standing in for the profile name while loading. */
+    val AccountSkeletonNameWidth = 120.dp
+
+    /** Inner padding of the inline profile-edit card. */
+    val AccountEditCardPadding = 20.dp
+
+    /** Gap between the two fields in the profile-edit form. */
+    val AccountEditFieldGap = 12.dp
+
     // --- Payment ---------------------------------------------------------------
 
     /** Minimum height of a payment-method radio card. */

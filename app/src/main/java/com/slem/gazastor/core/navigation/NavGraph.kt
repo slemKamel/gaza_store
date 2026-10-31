@@ -273,7 +273,12 @@ fun AppNavGraph(navController: NavHostController) {
 
             composable(Screen.Account.route) {
                 AccountScreen(
-                    onGuestClick = { navController.navigate(Screen.Auth.route) }
+                    onGuestClick = { navController.navigate(Screen.Auth.route) },
+                    // Tab switches keep the save/restore behaviour: the account
+                    // shortcuts must not push a second copy of a tab.
+                    onOrdersClick = { navController.navigateToTab(Screen.Orders.route) },
+                    onFavoritesClick = { navController.navigateToTab(Screen.Favorites.route) },
+                    onCartClick = { navController.navigateToTab(Screen.Cart.route) }
                 )
             }
 
@@ -332,6 +337,7 @@ fun AppNavGraph(navController: NavHostController) {
                 val itemId = backStackEntry.arguments?.getString("itemId").orEmpty()
                 DetailScreen(
                     itemId = itemId,
+                    cartViewModel = cartViewModel,
                     onBackClick = { navController.popBackStack() }
                 )
             }
